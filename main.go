@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/rand"
+	"encoding/base64"
 	"flag"
 	"fmt"
 	"io"
@@ -67,7 +69,10 @@ func main() {
 			os.Stdout.Write(output)
 			return
 		}
-		state := "xyzzy" // TODO: random string
+		state, err := randomString(32)
+		if err != nil {
+			log.Fatal(err)
+		}
 		codes := make(chan string)
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			query := r.URL.Query()
@@ -105,4 +110,12 @@ func main() {
 		fmt.Printf("username=%s\n", "oauth2")
 		fmt.Printf("password=%s\n", token.AccessToken)
 	}
+}
+
+func randomString(n int) (string, error) {
+	data := make([]byte, n)
+	if _, err := io.ReadFull(rand.Reader, data); err != nil {
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(data), nil
 }
