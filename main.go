@@ -23,10 +23,8 @@ import (
 )
 
 var configByHost = map[string]oauth2.Config{
-	// https://github.com/settings/connections/applications/0120e057bd645470c1ed borrowed from GCM
-	"github.com": {ClientID: "0120e057bd645470c1ed", ClientSecret: "18867509d956965542b521a529a79bb883344c90", Endpoint: github.Endpoint, Scopes: []string{"repo", "gist", "workflow"}},
 	// https://github.com/settings/applications/2017944 owned by hickford
-	// "github.com": {ClientID: "b895675a4e2cf54d5c6c", ClientSecret: "2b746eea028711749c5062b9fe626fed78d03cc0,", Endpoint: github.Endpoint, Scopes: []string{"repo", "gist", "workflow"}},
+	"github.com": {ClientID: "b895675a4e2cf54d5c6c", ClientSecret: "2b746eea028711749c5062b9fe626fed78d03cc0", Endpoint: github.Endpoint, Scopes: []string{"repo", "gist", "workflow"}},
 	// https://gitlab.com/oauth/applications/232663 owned by hickford
 	"gitlab.com": {ClientID: "10bfbbf46e5b760b55ce772a262d7a0205eacc417816eb84d37d0fb02c89bb97", ClientSecret: "e1802e0ac361efc72f8e2024e6fd5855bfdf73524b67740c05e755f55b97eb39", Endpoint: gitlab.Endpoint, Scopes: []string{"read_repository", "write_repository"}},
 }
