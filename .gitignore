@@ -4,6 +4,7 @@
 *.dll
 *.so
 *.dylib
+git-credential-oauth
 
 # Test binary, built with `go test -c`
 *.test
