@@ -74,6 +74,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		// TODO: use refresh token without opening browser
 		url := c.AuthCodeURL(state, pcode.Challenge(), pcode.Method())
 		fmt.Fprintf(os.Stderr, "Please complete authentication in your browser %s\n", url)
 		err = exec.Command("open", url).Run()

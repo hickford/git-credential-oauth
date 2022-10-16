@@ -44,8 +44,16 @@ NB. The path must be an absolute path.
 
 ## Comparison with Git Credential Manager
 
-[Git Credential Manager](https://github.com/GitCredentialManager/git-credential-manager) has broader functionality including its own implementations of platform-specific storage. GCM ships with Git for Windows, but because it's developed in .NET, it is harder to build and install on Linux. Disclaimer: I also contribute to GCM.
+[Git Credential Manager](https://github.com/GitCredentialManager/git-credential-manager) has broader functionality including its own implementations of platform-specific storage. However because it's developed in .NET, GCM is harder to build and install on Linux. In particular, GCM is awkward for Linux distributions to package.
 
-## Roadmap
+|                | Git Credential Manager | git-credential-oauth |
+|----------------|------------------------|----------------------|
+| Cross platform | ✓                      | ✓                     |
+| Linux arm64 support            | 🗙               | ✓                            |
+| Installation size | 150 MB              | 7 MB                 |
+| GUI            | ✓              | 🗙                            |
+| Storage        | Implements storage     | Interoperates with other helpers |
+| Development    | .NET                   | Go                   |
+| Packaged in Linux distributions               | [Challenging](https://github.com/dotnet/source-build/discussions/2960)            | Ready to package?       |
 
-* Package for Linux distributions
+Disclaimer: I also contribute to GCM.
