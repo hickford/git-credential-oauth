@@ -7,6 +7,8 @@ git-credential-oauth
 
 A Git credential helper that securely authenticates to GitHub, GitLab and other forges using [OAuth](https://oauth.net/).
 
+The first time you push, the helper will open a browser window to authenticate. Subsequent pushes within the cache timeout require no interaction.
+
 ## Motivation
 
 Two-factor authentication changed how users authenticate to websites, but Git still assumes users can type a password from memory. Personal access tokens are easy enough to copy and paste but awkward to store securely. While [git-credential-cache](https://git-scm.com/docs/git-credential-cache) works well for passwords, the impossible-to-memorise token is lost when the cache expires, so user has to generate a new token daily. All in all, the usability is so poor that the [most popular advice on StackOverflow](https://stackoverflow.com/a/35942890/284795) is to insecurely save credentials in plaintext.
@@ -19,13 +21,15 @@ Two-factor authentication changed how users authenticate to websites, but Git st
 
 ## Installation and configuration
 
-Go users can install with:
+Download from https://github.com/hickford/git-credential-oauth/releases
+
+Alternatively, Go users can install with:
 
     go install github.com/hickford/git-credential-oauth@latest
 
-Test the install with:
+Test the binary:
 
-    ~/go/bin/git-credential-oauth
+	./git-credential-oauth
 
 Then edit your `~/.gitconfig` to include the following lines, making sure to adjust the username:
 
@@ -33,10 +37,10 @@ Then edit your `~/.gitconfig` to include the following lines, making sure to adj
 [credential]
 	helper = 
 	helper = cache --timeout 7200	# two hours
-	helper = /home/YOURUSERNAMEHERE/go/bin/git-credential-oauth
+	helper = /home/YOURUSERNAMEHERE/bin/git-credential-oauth
 ```
 
-The first time you push, the helper will open a browser window to authenticate. Subsequent pushes (within the cache timeout) require no interaction.
+NB. The path must be an absolute path.
 
 ## Comparison with Git Credential Manager
 
@@ -44,6 +48,4 @@ The first time you push, the helper will open a browser window to authenticate. 
 
 ## Roadmap
 
-* Binaries
 * Package for Linux distributions
-* Upstream to Git?
