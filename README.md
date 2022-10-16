@@ -23,7 +23,7 @@ Two-factor authentication changed how users authenticate to websites, but Git st
 
 Download from https://github.com/hickford/git-credential-oauth/releases
 
-Alternatively, Go users can install with:
+Alternatively, Go users can install to `~/go/bin` with:
 
     go install github.com/hickford/git-credential-oauth@latest
 
@@ -31,16 +31,22 @@ Test the binary:
 
 	./git-credential-oauth
 
-Then edit your `~/.gitconfig` to include the following lines, making sure to adjust the username:
+Then edit your `~/.gitconfig` to include the following lines, adjusting the path to wherever you saved the binary:
 
 ```ini
 [credential]
 	helper = 
 	helper = cache --timeout 7200	# two hours
-	helper = /home/YOURUSERNAMEHERE/bin/git-credential-oauth
+	helper = /home/YOURUSERNAMEHERE/go/bin/git-credential-oauth
 ```
 
 NB. The path must be an absolute path.
+
+### Uninstallation
+
+Edit `~/.gitconfig` manually, or:
+
+	git config --global --unset-all credential.helper git-credential-oauth
 
 ## Comparison with Git Credential Manager
 
@@ -54,6 +60,6 @@ NB. The path must be an absolute path.
 | GUI            | ✓              | 🗙                            |
 | Storage        | Implements storage     | Interoperates with other helpers |
 | Development    | .NET                   | Go                   |
-| Packaged in Linux distributions               | [Challenging](https://github.com/dotnet/source-build/discussions/2960)            | Ready to package?       |
+| Packaged in Linux distributions               | [Challenging to package](https://github.com/dotnet/source-build/discussions/2960)            | Ready to package?       |
 
 Disclaimer: I also contribute to GCM.
