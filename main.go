@@ -47,6 +47,18 @@ func printVersion() {
 	}
 }
 
+func parse(input string) map[string]string {
+	lines := strings.Split(string(input), "\n")
+	pairs := map[string]string{}
+	for _, line := range lines {
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) >= 2 {
+			pairs[parts[0]] = parts[1]
+		}
+	}
+	return pairs
+}
+
 func main() {
 	flag.BoolVar(&verbose, "verbose", false, "log debug information to stderr")
 	flag.Usage = func() {
@@ -64,18 +76,11 @@ func main() {
 	switch args[0] {
 	case "get":
 		printVersion()
-		raw, err := io.ReadAll(os.Stdin)
+		input, err := io.ReadAll(os.Stdin)
 		if err != nil {
 			log.Fatalln(err)
 		}
-		lines := strings.Split(string(raw), "\n")
-		pairs := map[string]string{}
-		for _, line := range lines {
-			parts := strings.SplitN(line, "=", 2)
-			if len(parts) >= 2 {
-				pairs[parts[0]] = parts[1]
-			}
-		}
+		pairs := parse(string(input))
 		if verbose {
 			fmt.Fprintln(os.Stderr, "input: ", pairs)
 		}
