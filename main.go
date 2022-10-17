@@ -32,18 +32,34 @@ var configByHost = map[string]oauth2.Config{
 	"bitbucket.org":          {ClientID: "abET6ywGmTknNRvAMT", ClientSecret: "df8rsnkAxuHCgZrSgu5ykJQjrbGVzT9m", Endpoint: bitbucket.Endpoint, Scopes: []string{"repository", "repository:write"}},
 }
 
+var verbose bool
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
+
 func main() {
-	flag.Parse()
-	if len(os.Args) <= 1 {
-		fmt.Printf("usage: git-credential-oauth <action>\n")
-		fmt.Printf("https://git-scm.com/docs/gitcredentials\n")
-		os.Exit(1)
+	flag.BoolVar(&verbose, "verbose", false, "log debug information to stderr")
+	flag.Usage = func() {
+		fmt.Fprintln(os.Stderr, "usage: git credential-cache [<options>] <action>")
+		flag.PrintDefaults()
+		fmt.Fprintln(os.Stderr, "See also https://git-scm.com/docs/gitcredentials#_custom_helpers")
 	}
-	switch os.Args[1] {
+	flag.Parse()
+	if verbose {
+		fmt.Fprintf(os.Stderr, "git-credential-oauth %s, commit %s, built at %s\n", version, commit, date)
+	}
+	args := flag.Args()
+	if len(args) != 1 {
+		flag.Usage()
+		os.Exit(2)
+	}
+	switch args[0] {
 	case "get":
 		raw, err := io.ReadAll(os.Stdin)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalln(err)
 		}
 		lines := strings.Split(string(raw), "\n")
 		pairs := map[string]string{}
@@ -53,14 +69,16 @@ func main() {
 				pairs[parts[0]] = parts[1]
 			}
 		}
-		log.Print(pairs)
+		if verbose {
+			fmt.Fprintln(os.Stderr, "input: ", pairs)
+		}
 		c, ok := configByHost[pairs["host"]]
 		if !ok {
 			return
 		}
 		state, err := randomString(32)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalln(err)
 		}
 		queries := make(chan url.Values)
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -72,27 +90,35 @@ func main() {
 		c.RedirectURL = server.URL
 		pcode, err := pkce.Generate()
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalln(err)
 		}
 		// TODO: use refresh token without opening browser
 		url := c.AuthCodeURL(state, pcode.Challenge(), pcode.Method())
-		fmt.Fprintf(os.Stderr, "Please complete authentication in your browser %s\n", url)
+		fmt.Fprintln(os.Stderr, "Please complete authentication in your browser")
+		if verbose {
+			fmt.Fprintln(os.Stderr, url)
+		}
 		err = exec.Command("open", url).Run()
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalln(err)
 		}
 		query := <-queries
-		log.Print(query)
+		if verbose {
+			fmt.Fprintln(os.Stderr, "query:", query)
+		}
 		server.Close()
 		var code string
 		if query.Get("state") == state {
 			code = query.Get("code")
 		} else {
-			log.Fatal(query)
+			log.Fatalln(query)
 		}
 		token, err := c.Exchange(context.Background(), code, pcode.Verifier())
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalln(err)
+		}
+		if verbose {
+			fmt.Fprintln(os.Stderr, "token:", token)
 		}
 		fmt.Printf("username=%s\n", "oauth2")
 		fmt.Printf("password=%s\n", token.AccessToken)
