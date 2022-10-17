@@ -1,5 +1,3 @@
-# This is an example .goreleaser.yml file with some sensible defaults.
-# Make sure to check the documentation at https://goreleaser.com
 before:
   hooks:
     # You may remove this if you don't use go modules.
@@ -30,6 +28,19 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+
+nfpms:
+  -
+    maintainer: "M Hickford <mirth.hickford@gmail.com>"
+    description: "A Git credential helper that securely authenticates to GitHub, GitLab and other forges using OAuth."
+    homepage: "https://github.com/hickford/git-credential-oauth"
+    license: "MIT"
+    dependencies:
+      - git
+    formats:
+      - deb
+      - rpm
+
 
 # modelines, feel free to remove those if you don't want/use them:
 # yaml-language-server: $schema=https://goreleaser.com/static/schema.json
