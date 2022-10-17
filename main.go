@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"runtime/debug"
 	"strings"
 
 	"go.pinniped.dev/pkg/oidcclient/pkce"
@@ -32,14 +33,17 @@ var configByHost = map[string]oauth2.Config{
 
 var (
 	verbose bool
+	// populated by GoReleaser https://goreleaser.com/cookbooks/using-main.version
 	version = "dev"
-	commit  = "none"
-	date    = "unknown"
 )
 
 func printVersion() {
+	info, ok := debug.ReadBuildInfo()
+	if ok && version == "dev" {
+		version = info.Main.Version
+	}
 	if verbose {
-		fmt.Fprintf(os.Stderr, "git-credential-oauth %s, commit %s, built at %s\n", version, commit, date)
+		fmt.Fprintf(os.Stderr, "git-credential-oauth %s\n", version)
 	}
 }
 
