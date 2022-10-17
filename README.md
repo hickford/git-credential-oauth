@@ -48,6 +48,18 @@ Edit `~/.gitconfig` manually, or:
 
 	git config --global --unset-all credential.helper git-credential-oauth
 
+## Development
+
+### Debugging
+
+Use the `-verbose` flag.
+
+```ini
+	helper = /home/YOURUSERNAMEHERE/go/bin/git-credential-oauth -verbose
+```
+
+To see which helpers Git calls, set `export GIT_TRACE=1`.
+
 ## Comparison with Git Credential Manager
 
 [Git Credential Manager](https://github.com/GitCredentialManager/git-credential-manager) has broader functionality including its own implementations of platform-specific storage. However because it's developed in .NET, GCM is harder to build and install on Linux. In particular, GCM is awkward for Linux distributions to package.
