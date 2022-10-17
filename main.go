@@ -32,24 +32,28 @@ var configByHost = map[string]oauth2.Config{
 	"bitbucket.org":          {ClientID: "abET6ywGmTknNRvAMT", ClientSecret: "df8rsnkAxuHCgZrSgu5ykJQjrbGVzT9m", Endpoint: bitbucket.Endpoint, Scopes: []string{"repository", "repository:write"}},
 }
 
-var verbose bool
 var (
+	verbose bool
 	version = "dev"
 	commit  = "none"
 	date    = "unknown"
 )
 
+func printVersion() {
+	if verbose {
+		fmt.Fprintf(os.Stderr, "git-credential-oauth %s, commit %s, built at %s\n", version, commit, date)
+	}
+}
+
 func main() {
 	flag.BoolVar(&verbose, "verbose", false, "log debug information to stderr")
 	flag.Usage = func() {
+		printVersion()
 		fmt.Fprintln(os.Stderr, "usage: git credential-cache [<options>] <action>")
 		flag.PrintDefaults()
 		fmt.Fprintln(os.Stderr, "See also https://git-scm.com/docs/gitcredentials#_custom_helpers")
 	}
 	flag.Parse()
-	if verbose {
-		fmt.Fprintf(os.Stderr, "git-credential-oauth %s, commit %s, built at %s\n", version, commit, date)
-	}
 	args := flag.Args()
 	if len(args) != 1 {
 		flag.Usage()
@@ -57,6 +61,7 @@ func main() {
 	}
 	switch args[0] {
 	case "get":
+		printVersion()
 		raw, err := io.ReadAll(os.Stdin)
 		if err != nil {
 			log.Fatalln(err)
