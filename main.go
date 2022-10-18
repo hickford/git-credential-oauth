@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
 	"flag"
 	"fmt"
@@ -16,6 +17,7 @@ import (
 	"runtime/debug"
 	"strings"
 
+	"github.com/google/uuid"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/authhandler"
 	"golang.org/x/oauth2/endpoints"
@@ -90,10 +92,7 @@ func main() {
 		if !ok {
 			return
 		}
-		state, err := randomString(32)
-		if err != nil {
-			log.Fatalln(err)
-		}
+		state := uuid.New().String()
 		queries := make(chan url.Values)
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// TODO: consider whether to show errors in browser or command line
@@ -102,7 +101,6 @@ func main() {
 		}))
 		defer server.Close()
 		c.RedirectURL = server.URL
-		pkce := authhandler.PKCEParams{Challenge: "abc", Verifier: "abc", ChallengeMethod: "S256"}
 		tokenSource := authhandler.TokenSourceWithPKCE(context.Background(), &c, state, func(authCodeURL string) (code string, state string, err error) {
 			defer server.Close()
 			fmt.Fprintln(os.Stderr, "Please complete authentication in your browser")
@@ -118,7 +116,7 @@ func main() {
 				fmt.Fprintln(os.Stderr, "query:", query)
 			}
 			return query.Get("code"), query.Get("state"), nil
-		}, &pkce)
+		}, generatePKCEParams())
 		token, err := tokenSource.Token()
 		if err != nil {
 			log.Fatalln(err)
@@ -147,4 +145,16 @@ func replaceHost(e oauth2.Endpoint, host string) oauth2.Endpoint {
 	e.AuthURL = strings.Replace(e.AuthURL, url.Host, host, 1)
 	e.TokenURL = strings.Replace(e.TokenURL, url.Host, host, 1)
 	return e
+}
+
+func generatePKCEParams() *authhandler.PKCEParams {
+	verifier := uuid.New().String()
+	sha := sha256.Sum256([]byte(verifier))
+	challenge := base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(sha[:])
+
+	return &authhandler.PKCEParams{
+		Challenge:       challenge,
+		ChallengeMethod: "S256",
+		Verifier:        verifier,
+	}
 }
