@@ -17,7 +17,6 @@ import (
 	"runtime/debug"
 	"strings"
 
-	"github.com/google/uuid"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/authhandler"
 	"golang.org/x/oauth2/endpoints"
@@ -92,7 +91,7 @@ func main() {
 		if !ok {
 			return
 		}
-		state := uuid.New().String()
+		state := randomString(16)
 		queries := make(chan url.Values)
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// TODO: consider whether to show errors in browser or command line
@@ -129,12 +128,12 @@ func main() {
 	}
 }
 
-func randomString(n int) (string, error) {
+func randomString(n int) string {
 	data := make([]byte, n)
 	if _, err := io.ReadFull(rand.Reader, data); err != nil {
-		return "", err
+		panic(err)
 	}
-	return base64.StdEncoding.EncodeToString(data), nil
+	return base64.StdEncoding.EncodeToString(data)
 }
 
 func replaceHost(e oauth2.Endpoint, host string) oauth2.Endpoint {
@@ -148,7 +147,7 @@ func replaceHost(e oauth2.Endpoint, host string) oauth2.Endpoint {
 }
 
 func generatePKCEParams() *authhandler.PKCEParams {
-	verifier := uuid.New().String()
+	verifier := randomString(32)
 	sha := sha256.Sum256([]byte(verifier))
 	challenge := base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(sha[:])
 
