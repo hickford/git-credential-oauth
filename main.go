@@ -16,8 +16,8 @@ import (
 	"runtime/debug"
 	"strings"
 
-	"go.pinniped.dev/pkg/oidcclient/pkce"
 	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/authhandler"
 	"golang.org/x/oauth2/endpoints"
 )
 
@@ -102,32 +102,24 @@ func main() {
 		}))
 		defer server.Close()
 		c.RedirectURL = server.URL
-		pcode, err := pkce.Generate()
-		if err != nil {
-			log.Fatalln(err)
-		}
-		// TODO: use refresh token without opening browser
-		url := c.AuthCodeURL(state, pcode.Challenge(), pcode.Method())
-		fmt.Fprintln(os.Stderr, "Please complete authentication in your browser")
-		if verbose {
-			fmt.Fprintln(os.Stderr, url)
-		}
-		err = exec.Command("open", url).Run()
-		if err != nil {
-			log.Fatalln(err)
-		}
-		query := <-queries
-		if verbose {
-			fmt.Fprintln(os.Stderr, "query:", query)
-		}
-		server.Close()
-		var code string
-		if query.Get("state") == state {
-			code = query.Get("code")
-		} else {
-			log.Fatalln(query)
-		}
-		token, err := c.Exchange(context.Background(), code, pcode.Verifier())
+		pkce := authhandler.PKCEParams{Challenge: "abc", Verifier: "abc", ChallengeMethod: "S256"}
+		tokenSource := authhandler.TokenSourceWithPKCE(context.Background(), &c, state, func(authCodeURL string) (code string, state string, err error) {
+			defer server.Close()
+			fmt.Fprintln(os.Stderr, "Please complete authentication in your browser")
+			if verbose {
+				fmt.Fprintln(os.Stderr, authCodeURL)
+			}
+			err = exec.Command("open", authCodeURL).Run()
+			if err != nil {
+				return "", "", err
+			}
+			query := <-queries
+			if verbose {
+				fmt.Fprintln(os.Stderr, "query:", query)
+			}
+			return query.Get("code"), query.Get("state"), nil
+		}, &pkce)
+		token, err := tokenSource.Token()
 		if err != nil {
 			log.Fatalln(err)
 		}
