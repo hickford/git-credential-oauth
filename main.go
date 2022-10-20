@@ -113,10 +113,8 @@ func main() {
 		c.RedirectURL = server.URL
 		tokenSource := authhandler.TokenSourceWithPKCE(context.Background(), &c, state, func(authCodeURL string) (code string, state string, err error) {
 			defer server.Close()
-			fmt.Fprintln(os.Stderr, "Please complete authentication in your browser")
-			if verbose {
-				fmt.Fprintln(os.Stderr, authCodeURL)
-			}
+			fmt.Fprintf(os.Stderr, "Please complete authentication in your browser...\n%s\n", authCodeURL)
+			// TODO: wait for server to start before opening browser
 			err = exec.Command("open", authCodeURL).Run()
 			if err != nil {
 				return "", "", err
