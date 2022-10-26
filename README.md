@@ -63,3 +63,7 @@ echo host=gitlab.com\nprotocol=https | git credential fill
 ```
 
 To see which helpers Git calls, set `export GIT_TRACE=1`.
+
+## Disclaimer
+
+This is not an officially supported Google product.
