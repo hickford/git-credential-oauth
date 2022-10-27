@@ -5,7 +5,7 @@ git-credential-oauth
 
 *No more passwords! No more personal access tokens! No more SSH keys!*
 
-A Git credential helper that securely authenticates to GitHub, GitLab and other forges using [OAuth](https://oauth.net/).
+A Git credential helper that securely authenticates to GitHub, GitLab, BitBucket and other forges using [OAuth](https://oauth.net/).
 
 The first time you push, the helper will open a browser window to authenticate. Subsequent pushes within the cache timeout require no interaction.
 
