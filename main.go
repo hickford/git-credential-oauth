@@ -43,6 +43,7 @@ var configByHost = map[string]oauth2.Config{
 	"codeberg.org": {ClientID: "246ca3e8-e974-430c-b9ec-3d4e2b54ad28", ClientSecret: "gto_4stsgpwkgtsvayljdsg3xq33l2v3v245rlc45tnpt4cjp7eyw5gq", Endpoint: oauth2.Endpoint{AuthURL: "https://codeberg.org/login/oauth/authorize", TokenURL: "https://codeberg.org/login/oauth/access_token"}},
 	// https://bitbucket.org/hickford/workspace/settings/oauth-consumers/983448/edit
 	"bitbucket.org": {ClientID: "abET6ywGmTknNRvAMT", ClientSecret: "df8rsnkAxuHCgZrSgu5ykJQjrbGVzT9m", Endpoint: endpoints.Bitbucket, Scopes: []string{"repository", "repository:write"}},
+	"dev.azure.com": {ClientID: "3528D4A6-5442-42DE-A7EE-01159C916FD9", ClientSecret: "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIs", Endpoint: oauth2.Endpoint{AuthURL: "https://app.vssps.visualstudio.com/oauth2/authorize", TokenURL: "https://app.vssps.visualstudio.com/oauth2/token"}, Scopes: []string{"vso.code_write"}},
 }
 
 var (
@@ -104,7 +105,11 @@ func main() {
 		}
 		state := randomString(16)
 		queries := make(chan url.Values)
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		serverFunc := httptest.NewServer
+		if pairs["host"] == "dev.azure.com" {
+			serverFunc = httptest.NewTLSServer
+		}
+		server := serverFunc(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// TODO: consider whether to show errors in browser or command line
 			queries <- r.URL.Query()
 			w.Write([]byte("Success. You may close this page and return to Git."))
@@ -114,7 +119,7 @@ func main() {
 		tokenSource := authhandler.TokenSourceWithPKCE(context.Background(), &c, state, func(authCodeURL string) (code string, state string, err error) {
 			defer server.Close()
 			fmt.Fprintf(os.Stderr, "Please complete authentication in your browser...\n%s\n", authCodeURL)
-			// TODO: wait for server to start before opening browser
+			// wait for server to start before opening browser
 			err = exec.Command("open", authCodeURL).Run()
 			if err != nil {
 				return "", "", err
