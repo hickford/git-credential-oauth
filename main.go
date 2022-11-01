@@ -106,9 +106,24 @@ func main() {
 		if !ok {
 			return
 		}
-		token, err := getToken(c)
-		if err != nil {
-			log.Fatalln(err)
+
+		var token *oauth2.Token
+		// first try refresh token without opening browser
+		if pairs["oauth_refresh_token"] != "" {
+			if verbose {
+				fmt.Fprintln(os.Stderr, "refreshing token...")
+			}
+			token, err = c.TokenSource(context.Background(), &oauth2.Token{RefreshToken: pairs["oauth_refresh_token"]}).Token()
+			if err != nil {
+				fmt.Fprintln(os.Stderr, "error during OAuth token refresh", err)
+			}
+		}
+
+		if token == nil {
+			token, err = getToken(c)
+			if err != nil {
+				log.Fatalln(err)
+			}
 		}
 		if verbose {
 			fmt.Fprintln(os.Stderr, "token: ", token)
@@ -120,6 +135,12 @@ func main() {
 		output := map[string]string{
 			"username": username,
 			"password": token.AccessToken,
+		}
+		if token.RefreshToken != "" {
+			output["oauth_refresh_token"] = token.RefreshToken
+		}
+		if !token.Expiry.IsZero() {
+			output["password_expiry_utc"] = fmt.Sprintf("%d", token.Expiry.UTC().Unix())
 		}
 		if verbose {
 			fmt.Fprintln(os.Stderr, "output:", output)
