@@ -106,30 +106,7 @@ func main() {
 		if !ok {
 			return
 		}
-		state := randomString(16)
-		queries := make(chan url.Values)
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// TODO: consider whether to show errors in browser or command line
-			queries <- r.URL.Query()
-			w.Write([]byte("Success. You may close this page and return to Git."))
-		}))
-		defer server.Close()
-		c.RedirectURL = server.URL
-		tokenSource := authhandler.TokenSourceWithPKCE(context.Background(), &c, state, func(authCodeURL string) (code string, state string, err error) {
-			defer server.Close()
-			fmt.Fprintf(os.Stderr, "Please complete authentication in your browser...\n%s\n", authCodeURL)
-			// TODO: wait for server to start before opening browser
-			err = exec.Command("open", authCodeURL).Run()
-			if err != nil {
-				return "", "", err
-			}
-			query := <-queries
-			if verbose {
-				fmt.Fprintln(os.Stderr, "query:", query)
-			}
-			return query.Get("code"), query.Get("state"), nil
-		}, generatePKCEParams())
-		token, err := tokenSource.Token()
+		token, err := getToken(c)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -143,6 +120,32 @@ func main() {
 		fmt.Printf("username=%s\n", username)
 		fmt.Printf("password=%s\n", token.AccessToken)
 	}
+}
+
+func getToken(c oauth2.Config) (*oauth2.Token, error) {
+	state := randomString(16)
+	queries := make(chan url.Values)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// TODO: consider whether to show errors in browser or command line
+		queries <- r.URL.Query()
+		w.Write([]byte("Success. You may close this page and return to Git."))
+	}))
+	defer server.Close()
+	c.RedirectURL = server.URL
+	return authhandler.TokenSourceWithPKCE(context.Background(), &c, state, func(authCodeURL string) (code string, state string, err error) {
+		defer server.Close()
+		fmt.Fprintf(os.Stderr, "Please complete authentication in your browser...\n%s\n", authCodeURL)
+		// TODO: wait for server to start before opening browser
+		err = exec.Command("open", authCodeURL).Run()
+		if err != nil {
+			return "", "", err
+		}
+		query := <-queries
+		if verbose {
+			fmt.Fprintln(os.Stderr, "query:", query)
+		}
+		return query.Get("code"), query.Get("state"), nil
+	}, generatePKCEParams()).Token()
 }
 
 func randomString(n int) string {
