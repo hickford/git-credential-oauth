@@ -7,6 +7,9 @@ import (
 
 func TestConfig(t *testing.T) {
 	for key, c := range configByHost {
+		if key == "android.googlesource.com" {
+			continue
+		}
 		if !strings.Contains(c.Endpoint.AuthURL, key) {
 			t.Errorf("bad auth url for key %s: %s", key, c.Endpoint.AuthURL)
 		}
