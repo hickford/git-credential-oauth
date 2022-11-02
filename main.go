@@ -97,7 +97,7 @@ func main() {
 		}
 		pairs := parse(string(input))
 		if verbose {
-			fmt.Fprintln(os.Stderr, "input: ", pairs)
+			fmt.Fprintln(os.Stderr, "input:", pairs)
 		}
 		c, ok := configByHost[pairs["host"]]
 		if strings.HasSuffix(pairs["host"], ".googlesource.com") {
@@ -117,8 +117,16 @@ func main() {
 		if pairs["host"] == "bitbucket.org" {
 			username = "x-token-auth"
 		}
-		fmt.Printf("username=%s\n", username)
-		fmt.Printf("password=%s\n", token.AccessToken)
+		output := map[string]string{
+			"username": username,
+			"password": token.AccessToken,
+		}
+		if verbose {
+			fmt.Fprintln(os.Stderr, "output:", output)
+		}
+		for key, v := range output {
+			fmt.Printf("%s=%s\n", key, v)
+		}
 	}
 }
 
