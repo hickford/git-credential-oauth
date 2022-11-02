@@ -111,7 +111,7 @@ func main() {
 			log.Fatalln(err)
 		}
 		if verbose {
-			fmt.Fprintln(os.Stderr, "token:", token)
+			fmt.Fprintln(os.Stderr, "token: ", token)
 		}
 		username := "oauth2"
 		if pairs["host"] == "bitbucket.org" {
@@ -150,7 +150,7 @@ func getToken(c oauth2.Config) (*oauth2.Token, error) {
 		}
 		query := <-queries
 		if verbose {
-			fmt.Fprintln(os.Stderr, "query:", query)
+			fmt.Fprintln(os.Stderr, "query: ", query)
 		}
 		return query.Get("code"), query.Get("state"), nil
 	}, generatePKCEParams()).Token()
