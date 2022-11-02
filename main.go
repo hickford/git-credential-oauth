@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
-	"net/http/httptest"
 	"net/url"
 	"os"
 	"os/exec"
@@ -125,15 +125,17 @@ func main() {
 func getToken(c oauth2.Config) (*oauth2.Token, error) {
 	state := randomString(16)
 	queries := make(chan url.Values)
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	go http.Serve(listener, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// TODO: consider whether to show errors in browser or command line
 		queries <- r.URL.Query()
 		w.Write([]byte("Success. You may close this page and return to Git."))
 	}))
-	defer server.Close()
-	c.RedirectURL = server.URL
+	c.RedirectURL = "http://" + listener.Addr().String()
 	return authhandler.TokenSourceWithPKCE(context.Background(), &c, state, func(authCodeURL string) (code string, state string, err error) {
-		defer server.Close()
 		fmt.Fprintf(os.Stderr, "Please complete authentication in your browser...\n%s\n", authCodeURL)
 		// TODO: wait for server to start before opening browser
 		err = exec.Command("open", authCodeURL).Run()
