@@ -38,7 +38,7 @@ Then edit your `~/.gitconfig` to include the following lines, adjusting the path
 	helper = oauth
 ```
 
-You may use a different storage helper, but git-credential-oauth must be configured last.
+You may use a different storage helper, but git-credential-oauth must be configured last. This ensures Git checks for *stored* credentials before generating *new* credentials.
 
 ### Uninstallation
 
