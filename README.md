@@ -29,7 +29,7 @@ Test that Git can find the binary:
 
 	git credential-oauth
 
-Then edit your `~/.gitconfig` to include the following lines, adjusting the path to wherever you saved the binary:
+Then edit your `~/.gitconfig` to include the following lines:
 
 ```ini
 [credential]
