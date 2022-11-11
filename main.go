@@ -91,7 +91,7 @@ func main() {
 	flag.BoolVar(&verbose, "verbose", false, "log debug information to stderr")
 	flag.Usage = func() {
 		printVersion()
-		fmt.Fprintln(os.Stderr, "usage: git credential-cache [<options>] <action>")
+		fmt.Fprintln(os.Stderr, "usage: git credential-oauth [<options>] <action>")
 		flag.PrintDefaults()
 		fmt.Fprintln(os.Stderr, "See also https://git-scm.com/docs/gitcredentials#_custom_helpers")
 	}
