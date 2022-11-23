@@ -71,7 +71,7 @@ Edit `~/.gitconfig` manually, or:
 |----------------|------------------------|----------------------|
 | Cross platform | ✓                      | ✓                     |
 | Linux arm64 support            | 🗙               | ✓                            |
-| Installation size | 150 MB              | 7 MB                 |
+| Installation size | 150 MB              | 5 MB                 |
 | Storage        | ✓     | Used in conjuction with other helpers |
 | Development    | .NET                   | Go                   |
 | Packaged in Linux distributions               | [Challenging to package](https://github.com/dotnet/source-build/discussions/2960)            | Ready to package       |
@@ -100,7 +100,7 @@ echo host=gitlab.com\nprotocol=https | git-credential-oauth -verbose get
 You can test configured helpers in combination with `git credential fill`, eg.
 
 ```
-echo host=gitlab.com\nprotocol=https | git credential fill
+echo url=https://gitlab.com | git credential fill
 ```
 
 To see which helpers Git calls, set `export GIT_TRACE=1`.
