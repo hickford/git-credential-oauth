@@ -92,8 +92,16 @@ func main() {
 	flag.Usage = func() {
 		printVersion()
 		fmt.Fprintln(os.Stderr, "usage: git credential-oauth [<options>] <action>")
+		fmt.Fprintln(os.Stderr, "")
+		fmt.Fprintln(os.Stderr, "Options:")
 		flag.PrintDefaults()
-		fmt.Fprintln(os.Stderr, "See also https://git-scm.com/docs/gitcredentials#_custom_helpers")
+		fmt.Fprintln(os.Stderr, "")
+		fmt.Fprintln(os.Stderr, "Actions:")
+		fmt.Fprintln(os.Stderr, "  get            Generate credential")
+		fmt.Fprintln(os.Stderr, "  configure      Configure as Git credential helper")
+		fmt.Fprintln(os.Stderr, "  unconfigure    Unconfigure as Git credential helper")
+		fmt.Fprintln(os.Stderr, "")
+		fmt.Fprintln(os.Stderr, "See also https://github.com/hickford/git-credential-oauth")
 	}
 	flag.Parse()
 	args := flag.Args()
@@ -140,6 +148,32 @@ func main() {
 		for key, v := range output {
 			fmt.Printf("%s=%s\n", key, v)
 		}
+	case "configure", "unconfigure":
+		gitPath, err := exec.LookPath("git")
+		if err != nil {
+			log.Fatalln(err)
+		}
+		var commands []*exec.Cmd
+		if args[0] == "configure" {
+			commands = []*exec.Cmd{exec.Command(gitPath, "config", "--global", "--unset-all", "credential.helper"),
+				exec.Command(gitPath, "config", "--global", "--add", "credential.helper", "cache --timeout 7200"),
+				exec.Command(gitPath, "config", "--global", "--add", "credential.helper", "oauth")}
+		} else if args[0] == "unconfigure" {
+			commands = []*exec.Cmd{exec.Command(gitPath, "config", "--global", "--unset-all", "credential.helper", "oauth")}
+		}
+		for _, cmd := range commands {
+			cmd.Stderr = os.Stderr
+			cmd.Stdout = os.Stdout
+			if verbose {
+				fmt.Fprintln(os.Stderr, cmd)
+			}
+			err := cmd.Run()
+			// ignore exit status 5 "you try to unset an option which does not exist" https://git-scm.com/docs/git-config#_description
+			if err != nil && cmd.ProcessState.ExitCode() != 5 {
+				log.Fatalln(err)
+			}
+		}
+		fmt.Fprintf(os.Stderr, "%sd successfully\n", args[0])
 	}
 }
 
