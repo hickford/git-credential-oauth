@@ -74,7 +74,7 @@ Edit `~/.gitconfig` manually, or:
 | Installation size | 150 MB              | 5 MB                 |
 | Storage        | ✓     | Used in conjuction with other helpers |
 | Development    | .NET                   | Go                   |
-| Packaged in Linux distributions               | [Challenging to package](https://github.com/dotnet/source-build/discussions/2960)            | Ready to package       |
+| Packaged in Linux distributions               | [Challenging to package](https://github.com/dotnet/source-build/discussions/2960)            | Packaged in [Fedora](https://packages.fedoraproject.org/pkgs/git-credential-oauth/git-credential-oauth/) and [Debian](https://tracker.debian.org/pkg/git-credential-oauth)       |
 
 Disclaimer: I also contribute to GCM.
 
