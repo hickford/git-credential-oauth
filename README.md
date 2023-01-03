@@ -57,6 +57,23 @@ Edit `~/.gitconfig` manually, or:
 
 	git config --global --unset-all credential.helper oauth
 
+## Custom hosts
+
+To use with a custom host, eg. `gitlab.example.com`:
+
+1. Register an OAuth application on the host. How to do this depends on the host, but the [GitLab instructions](https://docs.gitlab.com/ee/integration/oauth_provider.html#user-owned-applications) are typical.
+	* Specify name `git-credential-oauth`
+	* Specify redirect URI `http://localhost/`.
+	* Select scopes for read and write Git operations.
+2. Adjust the config commands below with the generated client id, client secret and *space-separated* scopes.
+3. Share the config commands with colleagues so they can skip the registration step.
+
+```sh
+git config --global credential.https://gitlab.example.com.oauthClientId <CLIENTID>
+git config --global credential.https://gitlab.example.com.oauthClientSecret <CLIENTSECRET>
+git config --global credential.https://gitlab.example.com.oauthScopes read_repository write_repository
+```
+
 ## Philosophy
 
 * Do one thing well, namely OAuth authentication.

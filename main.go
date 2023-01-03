@@ -120,11 +120,29 @@ func main() {
 		if verbose {
 			fmt.Fprintln(os.Stderr, "input:", pairs)
 		}
-		c, ok := configByHost[pairs["host"]]
-		if strings.HasSuffix(pairs["host"], ".googlesource.com") {
-			c, ok = configByHost["android.googlesource.com"]
+		host := pairs["host"]
+		url := fmt.Sprintf("%s://%s", pairs["protocol"], host)
+		c := configByHost[host]
+		if strings.HasSuffix(host, ".googlesource.com") {
+			c = configByHost["android.googlesource.com"]
 		}
-		if !ok {
+		gitPath, err := exec.LookPath("git")
+		if err == nil {
+			cmd := exec.Command(gitPath, "config", "--get", fmt.Sprintf("credential.%s.oauthClientId", url))
+			bytes, err := cmd.Output()
+			if err == nil {
+				c.ClientID = strings.TrimSpace(string(bytes))
+			}
+			bytes, err = exec.Command(gitPath, "config", "--get", fmt.Sprintf("credential.%s.oauthClientSecret", url)).Output()
+			if err == nil {
+				c.ClientSecret = strings.TrimSpace(string(bytes))
+			}
+			bytes, err = exec.Command(gitPath, "config", "--get", fmt.Sprintf("credential.%s.oauthScopes", url)).Output()
+			if err == nil {
+				c.Scopes = []string{strings.TrimSpace(string(bytes))}
+			}
+		}
+		if c.ClientID == "" {
 			return
 		}
 		token, err := getToken(c)
@@ -135,7 +153,7 @@ func main() {
 			fmt.Fprintln(os.Stderr, "token:", token)
 		}
 		username := "oauth2"
-		if pairs["host"] == "bitbucket.org" {
+		if host == "bitbucket.org" {
 			username = "x-token-auth"
 		}
 		output := map[string]string{
