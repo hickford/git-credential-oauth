@@ -4,19 +4,7 @@ before:
 builds:
   - env:
       - CGO_ENABLED=0
-    goos:
-      - linux
-      - windows
-      - darwin
 archives:
-  - replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
-      amd64: x86_64
-# changelog:
-#  use: github
 
 # modelines, feel free to remove those if you don't want/use them:
 # yaml-language-server: $schema=https://goreleaser.com/static/schema.json
