@@ -72,6 +72,8 @@ To use with a custom host, eg. `gitlab.example.com`:
 git config --global credential.https://gitlab.example.com.oauthClientId <CLIENTID>
 git config --global credential.https://gitlab.example.com.oauthClientSecret <CLIENTSECRET>
 git config --global credential.https://gitlab.example.com.oauthScopes read_repository write_repository
+git config --global credential.https://gitlab.example.com.oauthAuthURL /oauth/authorize
+git config --global credential.https://gitlab.example.com.oauthTokenURL /oauth/token
 ```
 
 ## Philosophy

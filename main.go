@@ -121,28 +121,36 @@ func main() {
 			fmt.Fprintln(os.Stderr, "input:", pairs)
 		}
 		host := pairs["host"]
-		url := fmt.Sprintf("%s://%s", pairs["protocol"], host)
+		urll := fmt.Sprintf("%s://%s", pairs["protocol"], host)
 		c := configByHost[host]
 		if strings.HasSuffix(host, ".googlesource.com") {
 			c = configByHost["android.googlesource.com"]
 		}
 		gitPath, err := exec.LookPath("git")
 		if err == nil {
-			cmd := exec.Command(gitPath, "config", "--get", fmt.Sprintf("credential.%s.oauthClientId", url))
+			cmd := exec.Command(gitPath, "config", "--get", fmt.Sprintf("credential.%s.oauthClientId", urll))
 			bytes, err := cmd.Output()
 			if err == nil {
 				c.ClientID = strings.TrimSpace(string(bytes))
 			}
-			bytes, err = exec.Command(gitPath, "config", "--get", fmt.Sprintf("credential.%s.oauthClientSecret", url)).Output()
+			bytes, err = exec.Command(gitPath, "config", "--get", fmt.Sprintf("credential.%s.oauthClientSecret", urll)).Output()
 			if err == nil {
 				c.ClientSecret = strings.TrimSpace(string(bytes))
 			}
-			bytes, err = exec.Command(gitPath, "config", "--get", fmt.Sprintf("credential.%s.oauthScopes", url)).Output()
+			bytes, err = exec.Command(gitPath, "config", "--get", fmt.Sprintf("credential.%s.oauthScopes", urll)).Output()
 			if err == nil {
 				c.Scopes = []string{strings.TrimSpace(string(bytes))}
 			}
+			bytes, err = exec.Command(gitPath, "config", "--get", fmt.Sprintf("credential.%s.oauthAuthURL", urll)).Output()
+			if err == nil {
+				c.Endpoint.AuthURL, _ = url.JoinPath(urll, strings.TrimSpace(string(bytes)))
+			}
+			bytes, err = exec.Command(gitPath, "config", "--get", fmt.Sprintf("credential.%s.oauthTokenURL", urll)).Output()
+			if err == nil {
+				c.Endpoint.TokenURL, _ = url.JoinPath(urll, strings.TrimSpace(string(bytes)))
+			}
 		}
-		if c.ClientID == "" {
+		if c.ClientID == "" || c.Endpoint.AuthURL == "" || c.Endpoint.TokenURL == "" {
 			return
 		}
 		token, err := getToken(c)
