@@ -38,26 +38,68 @@ import (
 
 var configByHost = map[string]oauth2.Config{
 	// https://github.com/settings/applications/2017944
-	"github.com": {ClientID: "b895675a4e2cf54d5c6c", ClientSecret: "2b746eea028711749c5062b9fe626fed78d03cc0", Endpoint: endpoints.GitHub, Scopes: []string{"repo", "gist", "workflow"}},
+	"github.com": {
+		ClientID:     "b895675a4e2cf54d5c6c",
+		ClientSecret: "2b746eea028711749c5062b9fe626fed78d03cc0",
+		Endpoint:     endpoints.GitHub,
+		Scopes:       []string{"repo", "gist", "workflow"}},
 	// https://gitlab.com/oauth/applications/232663
-	"gitlab.com": {ClientID: "10bfbbf46e5b760b55ce772a262d7a0205eacc417816eb84d37d0fb02c89bb97", ClientSecret: "e1802e0ac361efc72f8e2024e6fd5855bfdf73524b67740c05e755f55b97eb39", Endpoint: endpoints.GitLab, Scopes: []string{"read_repository", "write_repository"}},
+	"gitlab.com": {
+		ClientID:     "10bfbbf46e5b760b55ce772a262d7a0205eacc417816eb84d37d0fb02c89bb97",
+		ClientSecret: "e1802e0ac361efc72f8e2024e6fd5855bfdf73524b67740c05e755f55b97eb39",
+		Endpoint:     endpoints.GitLab,
+		Scopes:       []string{"read_repository", "write_repository"}},
 	// https://gitlab.freedesktop.org/oauth/applications/68
-	"gitlab.freedesktop.org": {ClientID: "ba28f287f465c03c629941bca9de965923c561f8e967ce02673a0cd937a94b6f", ClientSecret: "e3b4dba6e99a0b25cc3d3d640e418d6cc5dbeb2e2dc4c3ca791d2a22308e951c", Endpoint: replaceHost(endpoints.GitLab, "gitlab.freedesktop.org"), Scopes: []string{"read_repository", "write_repository"}},
+	"gitlab.freedesktop.org": {
+		ClientID:     "ba28f287f465c03c629941bca9de965923c561f8e967ce02673a0cd937a94b6f",
+		ClientSecret: "e3b4dba6e99a0b25cc3d3d640e418d6cc5dbeb2e2dc4c3ca791d2a22308e951c",
+		Endpoint:     replaceHost(endpoints.GitLab, "gitlab.freedesktop.org"),
+		Scopes:       []string{"read_repository", "write_repository"}},
 	// https://gitlab.gnome.org/oauth/applications/112
-	"gitlab.gnome.org": {ClientID: "9719f147e6117ef0ee9954516bd7fe292176343a7fd24a8bcd5a686e8ef1ec71", ClientSecret: "f4e027961928ba9322fd980f5c4ee768dc7b6cb8fd7a81f959feb61b8fdec9f3", Endpoint: replaceHost(endpoints.GitLab, "gitlab.gnome.org"), Scopes: []string{"read_repository", "write_repository"}},
+	"gitlab.gnome.org": {
+		ClientID:     "9719f147e6117ef0ee9954516bd7fe292176343a7fd24a8bcd5a686e8ef1ec71",
+		ClientSecret: "f4e027961928ba9322fd980f5c4ee768dc7b6cb8fd7a81f959feb61b8fdec9f3",
+		Endpoint:     replaceHost(endpoints.GitLab, "gitlab.gnome.org"),
+		Scopes:       []string{"read_repository", "write_repository"}},
 	// https://code.videolan.org/oauth/applications/109
-	"code.videolan.org": {ClientID: "a6d235d8ebc7a7eacc52be6dba0b5bc31a6d013be85e2d15f0fc9006b4c6e9ff", ClientSecret: "639bea9d340709eeb4c76522666dbe0bb477e461d7945738e9b6693f1c260f3d", Endpoint: replaceHost(endpoints.GitLab, "code.videolan.org"), Scopes: []string{"read_repository", "write_repository"}},
+	"code.videolan.org": {
+		ClientID:     "a6d235d8ebc7a7eacc52be6dba0b5bc31a6d013be85e2d15f0fc9006b4c6e9ff",
+		ClientSecret: "639bea9d340709eeb4c76522666dbe0bb477e461d7945738e9b6693f1c260f3d",
+		Endpoint:     replaceHost(endpoints.GitLab, "code.videolan.org"),
+		Scopes:       []string{"read_repository", "write_repository"}},
 	// https://salsa.debian.org/oauth/applications/95
-	"salsa.debian.org": {ClientID: "0ae3637439058e4f261db17a001a7ec9235e1fda88b6d9221222a57c14ed830d", ClientSecret: "c06b1efadec522dad5b545039d6d601b2808998e755959bf869ba45a382aee7a", Endpoint: replaceHost(endpoints.GitLab, "salsa.debian.org"), Scopes: []string{"read_repository", "write_repository"}},
+	"salsa.debian.org": {
+		ClientID:     "0ae3637439058e4f261db17a001a7ec9235e1fda88b6d9221222a57c14ed830d",
+		ClientSecret: "c06b1efadec522dad5b545039d6d601b2808998e755959bf869ba45a382aee7a",
+		Endpoint:     replaceHost(endpoints.GitLab, "salsa.debian.org"),
+		Scopes:       []string{"read_repository", "write_repository"}},
 	// https://gitlab.haskell.org/oauth/applications/3
-	"gitlab.haskell.org": {ClientID: "078baa23982db8d6e179fb7da816b92e6a761268b8b35a7aa1e7ee7a3891a426", ClientSecret: "a805ce33fe571390c78dbc90c21f06b95cefa7451ed3e73ced92b67b2bc33583", Endpoint: replaceHost(endpoints.GitLab, "gitlab.haskell.org"), Scopes: []string{"read_repository", "write_repository"}},
+	"gitlab.haskell.org": {
+		ClientID:     "078baa23982db8d6e179fb7da816b92e6a761268b8b35a7aa1e7ee7a3891a426",
+		ClientSecret: "a805ce33fe571390c78dbc90c21f06b95cefa7451ed3e73ced92b67b2bc33583",
+		Endpoint:     replaceHost(endpoints.GitLab, "gitlab.haskell.org"),
+		Scopes:       []string{"read_repository", "write_repository"}},
 	// https://gitea.com/user/settings/applications/oauth2/218
-	"gitea.com": {ClientID: "e13f8ebc-398d-4091-9481-5a37a76b51f6", ClientSecret: "gto_gyodepoilwdv4g2nnigosazr2git7kkko3gadqgwqa3f6dxugi6a", Endpoint: oauth2.Endpoint{AuthURL: "https://gitea.com/login/oauth/authorize", TokenURL: "https://gitea.com/login/oauth/access_token"}},
+	"gitea.com": {
+		ClientID:     "e13f8ebc-398d-4091-9481-5a37a76b51f6",
+		ClientSecret: "gto_gyodepoilwdv4g2nnigosazr2git7kkko3gadqgwqa3f6dxugi6a",
+		Endpoint:     oauth2.Endpoint{AuthURL: "https://gitea.com/login/oauth/authorize", TokenURL: "https://gitea.com/login/oauth/access_token"}},
 	// https://codeberg.org/user/settings/applications/oauth2/223
-	"codeberg.org": {ClientID: "246ca3e8-e974-430c-b9ec-3d4e2b54ad28", ClientSecret: "gto_4stsgpwkgtsvayljdsg3xq33l2v3v245rlc45tnpt4cjp7eyw5gq", Endpoint: oauth2.Endpoint{AuthURL: "https://codeberg.org/login/oauth/authorize", TokenURL: "https://codeberg.org/login/oauth/access_token"}},
+	"codeberg.org": {
+		ClientID:     "246ca3e8-e974-430c-b9ec-3d4e2b54ad28",
+		ClientSecret: "gto_4stsgpwkgtsvayljdsg3xq33l2v3v245rlc45tnpt4cjp7eyw5gq",
+		Endpoint:     oauth2.Endpoint{AuthURL: "https://codeberg.org/login/oauth/authorize", TokenURL: "https://codeberg.org/login/oauth/access_token"}},
 	// https://bitbucket.org/hickford/workspace/settings/oauth-consumers/983448/edit
-	"bitbucket.org":            {ClientID: "abET6ywGmTknNRvAMT", ClientSecret: "df8rsnkAxuHCgZrSgu5ykJQjrbGVzT9m", Endpoint: endpoints.Bitbucket, Scopes: []string{"repository", "repository:write"}},
-	"android.googlesource.com": {ClientID: "897755559425-di05p489vpt7iv09thbf5a1ombcbs5v0.apps.googleusercontent.com", ClientSecret: "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", Endpoint: endpoints.Google, Scopes: []string{"https://www.googleapis.com/auth/gerritcodereview"}},
+	"bitbucket.org": {
+		ClientID:     "abET6ywGmTknNRvAMT",
+		ClientSecret: "df8rsnkAxuHCgZrSgu5ykJQjrbGVzT9m",
+		Endpoint:     endpoints.Bitbucket,
+		Scopes:       []string{"repository", "repository:write"}},
+	"android.googlesource.com": {
+		ClientID:     "897755559425-di05p489vpt7iv09thbf5a1ombcbs5v0.apps.googleusercontent.com",
+		ClientSecret: "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",
+		Endpoint:     endpoints.Google,
+		Scopes:       []string{"https://www.googleapis.com/auth/gerritcodereview"}},
 }
 
 var (
