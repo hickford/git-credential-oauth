@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -149,6 +150,10 @@ func main() {
 			if err == nil {
 				c.Endpoint.TokenURL, _ = url.JoinPath(urll, strings.TrimSpace(string(bytes)))
 			}
+			bytes, err = exec.Command(gitPath, "config", "--get", fmt.Sprintf("credential.%s.oauthRedirectURL", urll)).Output()
+			if err == nil {
+				c.RedirectURL = strings.TrimSpace(string(bytes))
+			}
 		}
 		if c.ClientID == "" || c.Endpoint.AuthURL == "" || c.Endpoint.TokenURL == "" {
 			return
@@ -160,13 +165,21 @@ func main() {
 		if verbose {
 			fmt.Fprintln(os.Stderr, "token:", token)
 		}
-		username := "oauth2"
+		var username string
 		if host == "bitbucket.org" {
+			// https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/#Cloning-a-repository-with-an-access-token
 			username = "x-token-auth"
+		} else if strings.Contains(host, "gitlab") {
+			// https://docs.gitlab.com/ee/api/oauth2.html#access-git-over-https-with-access-token
+			username = "oauth2"
+		} else if pairs["username"] == "" {
+			username = "oauth2"
 		}
 		output := map[string]string{
-			"username": username,
 			"password": token.AccessToken,
+		}
+		if username != "" {
+			output["username"] = username
 		}
 		if verbose {
 			fmt.Fprintln(os.Stderr, "output:", output)
@@ -206,13 +219,26 @@ func main() {
 func getToken(c oauth2.Config) (*oauth2.Token, error) {
 	state := randomString(16)
 	queries := make(chan url.Values)
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// TODO: consider whether to show errors in browser or command line
 		queries <- r.URL.Query()
 		w.Write([]byte("Success. You may close this page and return to Git."))
-	}))
+	})
+	var server *httptest.Server
+	if c.RedirectURL == "" {
+		server = httptest.NewServer(handler)
+		c.RedirectURL = server.URL
+	} else {
+		server = httptest.NewUnstartedServer(handler)
+		url, _ := url.Parse(c.RedirectURL)
+		l, err := net.Listen("tcp", url.Host)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		server.Listener = l
+		server.Start()
+	}
 	defer server.Close()
-	c.RedirectURL = server.URL
 	return authhandler.TokenSourceWithPKCE(context.Background(), &c, state, func(authCodeURL string) (code string, state string, err error) {
 		defer server.Close()
 		fmt.Fprintf(os.Stderr, "Please complete authentication in your browser...\n%s\n", authCodeURL)

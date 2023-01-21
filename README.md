@@ -63,7 +63,7 @@ To use with a custom host, eg. `gitlab.example.com`:
 
 1. Register an OAuth application on the host. How to do this depends on the host, but the [GitLab instructions](https://docs.gitlab.com/ee/integration/oauth_provider.html#user-owned-applications) are typical.
 	* Specify name `git-credential-oauth`
-	* Specify redirect URI `http://localhost/`.
+	* Specify redirect URI `http://127.0.0.1`.
 	* Select scopes for read and write Git operations.
 2. Adjust the config commands below with the generated client id, client secret and *space-separated* scopes.
 3. Share the config commands with colleagues so they can skip the registration step.
@@ -75,6 +75,8 @@ git config --global credential.https://gitlab.example.com.oauthScopes read_repos
 git config --global credential.https://gitlab.example.com.oauthAuthURL /oauth/authorize
 git config --global credential.https://gitlab.example.com.oauthTokenURL /oauth/token
 ```
+
+Note: Some non-conforming servers are confused by native apps that listen on a random port. If you see an error about the redirect URI, try removing the port including prefix `%3A` from the auth URL. To workaround permanently, set an explicit port in the app redirect URI *and* Git config variable `credential.oauthRedirectURL`. Please report a bug to the server operators, citing OAuth [RFC 8252](https://datatracker.ietf.org/doc/html/rfc8252#section-7.3) "The authorization server MUST allow any port to be specified at the time of the request for loopback IP redirect URIs".
 
 ## Philosophy
 
