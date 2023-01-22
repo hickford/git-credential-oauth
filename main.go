@@ -171,28 +171,28 @@ func main() {
 		}
 		gitPath, err := exec.LookPath("git")
 		if err == nil {
-			cmd := exec.Command(gitPath, "config", "--get", fmt.Sprintf("credential.%s.oauthClientId", urll))
+			cmd := exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthClientId", urll)
 			bytes, err := cmd.Output()
 			if err == nil {
 				c.ClientID = strings.TrimSpace(string(bytes))
 			}
-			bytes, err = exec.Command(gitPath, "config", "--get", fmt.Sprintf("credential.%s.oauthClientSecret", urll)).Output()
+			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthClientSecret", urll).Output()
 			if err == nil {
 				c.ClientSecret = strings.TrimSpace(string(bytes))
 			}
-			bytes, err = exec.Command(gitPath, "config", "--get", fmt.Sprintf("credential.%s.oauthScopes", urll)).Output()
+			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthScopes", urll).Output()
 			if err == nil {
 				c.Scopes = []string{strings.TrimSpace(string(bytes))}
 			}
-			bytes, err = exec.Command(gitPath, "config", "--get", fmt.Sprintf("credential.%s.oauthAuthURL", urll)).Output()
+			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthAuthURL", urll).Output()
 			if err == nil {
 				c.Endpoint.AuthURL, _ = url.JoinPath(urll, strings.TrimSpace(string(bytes)))
 			}
-			bytes, err = exec.Command(gitPath, "config", "--get", fmt.Sprintf("credential.%s.oauthTokenURL", urll)).Output()
+			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthTokenURL", urll).Output()
 			if err == nil {
 				c.Endpoint.TokenURL, _ = url.JoinPath(urll, strings.TrimSpace(string(bytes)))
 			}
-			bytes, err = exec.Command(gitPath, "config", "--get", fmt.Sprintf("credential.%s.oauthRedirectURL", urll)).Output()
+			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthRedirectURL", urll).Output()
 			if err == nil {
 				c.RedirectURL = strings.TrimSpace(string(bytes))
 			}
