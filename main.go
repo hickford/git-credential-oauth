@@ -285,9 +285,11 @@ func getToken(c oauth2.Config) (*oauth2.Token, error) {
 		defer server.Close()
 		fmt.Fprintf(os.Stderr, "Please complete authentication in your browser...\n%s\n", authCodeURL)
 		// TODO: wait for server to start before opening browser
-		err = exec.Command("open", authCodeURL).Run()
-		if err != nil {
-			return "", "", err
+		if _, err := exec.LookPath("open"); err == nil {
+			err = exec.Command("open", authCodeURL).Run()
+			if err != nil {
+				return "", "", err
+			}
 		}
 		query := <-queries
 		if verbose {
