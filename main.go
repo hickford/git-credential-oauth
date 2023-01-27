@@ -223,6 +223,9 @@ func main() {
 		if username != "" {
 			output["username"] = username
 		}
+		if !token.Expiry.IsZero() {
+			output["password_expiry_utc"] = fmt.Sprintf("%d", token.Expiry.UTC().Unix())
+		}
 		if verbose {
 			fmt.Fprintln(os.Stderr, "output:", output)
 		}
