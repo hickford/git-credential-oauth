@@ -83,7 +83,8 @@ func main() {
 		c.RedirectURL = server.URL
 		// workaround for GCM app
 		c.RedirectURL = strings.ReplaceAll(server.URL, "127.0.0.1", "localhost")
-		url := c.AuthCodeURL(state)
+		pkce := oauth2.GeneratePKCEParams()
+		url := c.AuthCodeURL(state, pkce.AuthCodeOptions()...)
 		fmt.Fprintf(os.Stderr, "Please complete authentication in your browser %s\n", url)
 		err = exec.Command("open", url).Run()
 		if err != nil {
@@ -91,7 +92,7 @@ func main() {
 		}
 		code := <-codes
 		server.Close()
-		token, err := c.Exchange(context.Background(), code)
+		token, err := c.Exchange(context.Background(), code, pkce.ExchangeOptions()...)
 		if err != nil {
 			log.Fatal(err)
 		}
