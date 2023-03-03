@@ -186,11 +186,17 @@ func main() {
 			}
 			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthAuthURL", urll).Output()
 			if err == nil {
-				c.Endpoint.AuthURL, _ = url.JoinPath(urll, strings.TrimSpace(string(bytes)))
+				c.Endpoint.AuthURL, err = urlResolveReference(urll, strings.TrimSpace(string(bytes)))
+				if err != nil {
+					log.Fatalln(err)
+				}
 			}
 			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthTokenURL", urll).Output()
 			if err == nil {
-				c.Endpoint.TokenURL, _ = url.JoinPath(urll, strings.TrimSpace(string(bytes)))
+				c.Endpoint.TokenURL, err = urlResolveReference(urll, strings.TrimSpace(string(bytes)))
+				if err != nil {
+					log.Fatalln(err)
+				}
 			}
 			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthRedirectURL", urll).Output()
 			if err == nil {
@@ -275,7 +281,10 @@ func getToken(c oauth2.Config) (*oauth2.Token, error) {
 		c.RedirectURL = server.URL
 	} else {
 		server = httptest.NewUnstartedServer(handler)
-		url, _ := url.Parse(c.RedirectURL)
+		url, err := url.Parse(c.RedirectURL)
+		if err != nil {
+			log.Fatalln(err)
+		}
 		l, err := net.Listen("tcp", url.Host)
 		if err != nil {
 			log.Fatalln(err)
@@ -330,4 +339,16 @@ func generatePKCEParams() *authhandler.PKCEParams {
 		ChallengeMethod: "S256",
 		Verifier:        verifier,
 	}
+}
+
+func urlResolveReference(base, ref string) (string, error) {
+	base1, err := url.Parse(base)
+	if err != nil {
+		return "", err
+	}
+	ref1, err := url.Parse(ref)
+	if err != nil {
+		return "", err
+	}
+	return base1.ResolveReference(ref1).String(), nil
 }
