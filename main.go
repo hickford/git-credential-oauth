@@ -28,6 +28,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"runtime"
 	"runtime/debug"
 	"strings"
 
@@ -245,8 +246,12 @@ func main() {
 		}
 		var commands []*exec.Cmd
 		if args[0] == "configure" {
+			storage := "cache --timeout 7200"
+			if runtime.GOOS == "windows" {
+				storage = "wincred"
+			}
 			commands = []*exec.Cmd{exec.Command(gitPath, "config", "--global", "--unset-all", "credential.helper"),
-				exec.Command(gitPath, "config", "--global", "--add", "credential.helper", "cache --timeout 7200"),
+				exec.Command(gitPath, "config", "--global", "--add", "credential.helper", storage),
 				exec.Command(gitPath, "config", "--global", "--add", "credential.helper", "oauth")}
 		} else if args[0] == "unconfigure" {
 			commands = []*exec.Cmd{exec.Command(gitPath, "config", "--global", "--unset-all", "credential.helper", "oauth")}

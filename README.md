@@ -25,13 +25,21 @@ Test that Git can find the binary:
 
 	git credential-oauth
 
-If you have problems, make sure that the binary is [located in the path](https://superuser.com/a/284351/62691) and executable.
+If you have problems, make sure that the binary is [located in the path](https://superuser.com/a/284351/62691) and is executable.
 
 ## Configuration
 
-Git is cleverly designed to [support multiple credential helpers](https://git-scm.com/docs/gitcredentials#_custom_helpers). To fill credentials, Git calls each helper in turn until it has the information it needs. git-credential-oauth is a read-only credential-generating helper, designed to be used in combination with a storage helper.  
+As a convenience, you can run:
 
-To use together with [git-credential-cache](https://git-scm.com/docs/git-credential-cache):
+```sh
+git credential-oauth configure
+```
+
+### How it works
+
+Git is cleverly designed to [support multiple credential helpers](https://git-scm.com/docs/gitcredentials#_custom_helpers). To fill credentials, Git calls each helper in turn until it has the information it needs. git-credential-oauth is a read-only credential-generating helper, designed to be configured in combination with a storage helper.
+
+To configure together with [git-credential-cache](https://git-scm.com/docs/git-credential-cache):
 
 ```sh
 git config --global --unset-all credential.helper
@@ -39,7 +47,9 @@ git config --global --add credential.helper "cache --timeout 7200" # two hours
 git config --global --add credential.helper oauth
 ```
 
-You may choose a different storage helper such as `osxkeychain` or `wincred`, but git-credential-oauth must be configured last. This ensures Git checks for *stored* credentials before generating *new* credentials.
+You may choose a different storage helper such as `osxkeychain`, `wincred` or `libsecret`, but git-credential-oauth must be configured last. This ensures Git checks for *stored* credentials before generating *new* credentials.
+
+**Windows users** must use storage helper `wincred` because [git-credential-cache isn't available on Windows](https://github.com/git-for-windows/git/issues/3892).
 
 ### Manual config
 
@@ -53,7 +63,7 @@ Edit your [global git config](https://git-scm.com/docs/git-config#FILES) `~/.git
 
 ### Unconfiguration
 
-Edit `~/.gitconfig` manually, or:
+Edit `~/.gitconfig` manually, or run:
 
 	git config --global --unset-all credential.helper oauth
 
