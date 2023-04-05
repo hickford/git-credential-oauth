@@ -31,6 +31,7 @@ import (
 	"runtime"
 	"runtime/debug"
 	"strings"
+	"time"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/authhandler"
@@ -260,6 +261,7 @@ func main() {
 		}
 		if token.RefreshToken != "" {
 			output["oauth_refresh_token"] = token.RefreshToken
+			output["password_expiry_utc"] = fmt.Sprintf("%d", time.Now().Add(10*time.Second).UTC().Unix())
 		}
 		if verbose {
 			fmt.Fprintln(os.Stderr, "output:", output)
