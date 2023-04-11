@@ -246,9 +246,14 @@ func main() {
 		}
 		var commands []*exec.Cmd
 		if args[0] == "configure" {
-			storage := "cache --timeout 7200"
-			if runtime.GOOS == "windows" {
+			var storage string
+			switch runtime.GOOS {
+			case "windows":
 				storage = "wincred"
+			case "darwin":
+				storage = "osxkeychain"
+			default:
+				storage = "cache --timeout 7200"
 			}
 			commands = []*exec.Cmd{exec.Command(gitPath, "config", "--global", "--unset-all", "credential.helper"),
 				exec.Command(gitPath, "config", "--global", "--add", "credential.helper", storage),
