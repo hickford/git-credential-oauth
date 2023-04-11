@@ -7,7 +7,7 @@ git-credential-oauth
 
 A Git credential helper that securely authenticates to GitHub, GitLab, BitBucket and other forges using [OAuth](https://oauth.net/).
 
-The first time you push, the helper will open a browser window to authenticate. Subsequent pushes within the cache timeout require no interaction.
+The first time you push, the helper will open a browser window to authenticate. Subsequent pushes within storage lifetime require no interaction.
 
 ## Motivation
 
@@ -15,7 +15,7 @@ Two-factor authentication changed how users authenticate to websites, but Git st
 
 ## Installation
 
-Download from https://github.com/hickford/git-credential-oauth/releases
+Download from https://github.com/hickford/git-credential-oauth/releases.
 
 Alternatively, Go users can install to `~/go/bin` with:
 
@@ -34,6 +34,8 @@ As a convenience, you can run:
 ```sh
 git credential-oauth configure
 ```
+
+This uses the recommended config below.
 
 ### How it works
 
@@ -92,20 +94,20 @@ Note: Some non-conforming servers are confused by native apps that listen on a r
 
 * Do one thing well, namely OAuth authentication.
 * Interoperate with other credential helpers.
-* Contribute upstream to improve the ecosystem.
+* [Contribute upstream](https://lore.kernel.org/git/?q=f%3Ahickford+s%3Acredential) to improve the ecosystem.
 
 ## Comparison with Git Credential Manager
 
-[Git Credential Manager](https://github.com/GitCredentialManager/git-credential-manager) has broader functionality including storage. However because it's developed in .NET, GCM is harder to build and install on Linux. In particular, GCM is awkward for Linux distributions to package.
+[Git Credential Manager](https://github.com/GitCredentialManager/git-credential-manager) has broader functionality including storage. However because it's developed in .NET, GCM is [challenging for Linux distributions to package](https://github.com/dotnet/source-build/discussions/2960).
 
 |                | Git Credential Manager | git-credential-oauth |
 |----------------|------------------------|----------------------|
 | Cross platform | ✓                      | ✓                     |
 | Linux arm64 support            | 🗙               | ✓                            |
-| Installation size | 150 MB              | 5 MB                 |
+| Installation size (Linux) | 150 MB              | 5 MB                 |
 | Storage        | ✓     | Used in conjuction with other helpers |
 | Development    | .NET                   | Go                   |
-| Packaged in Linux distributions               | [Challenging to package](https://github.com/dotnet/source-build/discussions/2960)            | Packaged in [Fedora](https://packages.fedoraproject.org/pkgs/git-credential-oauth/git-credential-oauth/) and [Debian](https://tracker.debian.org/pkg/git-credential-oauth)       |
+| Packaged in Linux distributions               | None            | [Multiple distros](https://repology.org/project/git-credential-oauth/versions) including [Fedora](https://packages.fedoraproject.org/pkgs/git-credential-oauth/git-credential-oauth/) and [Debian](https://tracker.debian.org/pkg/git-credential-oauth)       |
 
 Disclaimer: I also contribute to GCM.
 
