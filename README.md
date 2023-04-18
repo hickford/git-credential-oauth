@@ -98,14 +98,14 @@ Note: Some non-conforming servers are confused by native apps that listen on a r
 
 ## Comparison with Git Credential Manager
 
-[Git Credential Manager](https://github.com/GitCredentialManager/git-credential-manager) has broader functionality including storage. However because it's developed in .NET, GCM is [challenging for Linux distributions to package](https://github.com/dotnet/source-build/discussions/2960).
+[Git Credential Manager](https://github.com/GitCredentialManager/git-credential-manager) has broader functionality. However because it's developed in .NET, GCM is [challenging for Linux distributions to package](https://github.com/dotnet/source-build/discussions/2960).
 
 |                | Git Credential Manager | git-credential-oauth |
 |----------------|------------------------|----------------------|
 | Cross platform | ✓                      | ✓                     |
 | Linux arm64 support            | 🗙               | ✓                            |
 | Installation size (Linux) | 150 MB              | 5 MB                 |
-| Storage        | ✓     | Used in conjuction with other helpers |
+| Storage        | In built     | Used in conjuction with other helpers |
 | Development    | .NET                   | Go                   |
 | Packaged in Linux distributions               | None            | [Multiple distros](https://repology.org/project/git-credential-oauth/versions) including [Fedora](https://packages.fedoraproject.org/pkgs/git-credential-oauth/git-credential-oauth/) and [Debian](https://tracker.debian.org/pkg/git-credential-oauth)       |
 
