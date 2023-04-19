@@ -165,10 +165,16 @@ func main() {
 			fmt.Fprintln(os.Stderr, "input:", pairs)
 		}
 		host := pairs["host"]
+		looksLikeGitLab := strings.HasPrefix(host, "gitlab.") || strings.Contains(pairs["wwwauth[]"], `Realm="GitLab"`)
 		urll := fmt.Sprintf("%s://%s", pairs["protocol"], host)
-		c := configByHost[host]
-		if strings.HasSuffix(host, ".googlesource.com") {
+		c, found := configByHost[host]
+		if !found && strings.HasSuffix(host, ".googlesource.com") {
 			c = configByHost["android.googlesource.com"]
+		}
+		if !found && looksLikeGitLab {
+			// assumes GitLab installed at domain root
+			c.Endpoint = replaceHost(endpoints.GitLab, host)
+			c.Scopes = configByHost["gitlab.com"].Scopes
 		}
 		gitPath, err := exec.LookPath("git")
 		if err == nil {
@@ -205,6 +211,9 @@ func main() {
 			}
 		}
 		if c.ClientID == "" || c.Endpoint.AuthURL == "" || c.Endpoint.TokenURL == "" {
+			if looksLikeGitLab {
+				fmt.Fprintf(os.Stderr, "It looks like you're authenticating to a GitLab instance! To configure git-credential-oauth for host %s, follow the instructions at https://github.com/hickford/git-credential-oauth/issues/18. You may need to register an OAuth application at https://%s/-/profile/applications\n", host, host)
+			}
 			return
 		}
 		token, err := getToken(c)
@@ -218,7 +227,7 @@ func main() {
 		if host == "bitbucket.org" {
 			// https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/#Cloning-a-repository-with-an-access-token
 			username = "x-token-auth"
-		} else if strings.Contains(host, "gitlab") {
+		} else if looksLikeGitLab {
 			// https://docs.gitlab.com/ee/api/oauth2.html#access-git-over-https-with-access-token
 			username = "oauth2"
 		} else if pairs["username"] == "" {
