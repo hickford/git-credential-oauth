@@ -315,9 +315,18 @@ func getToken(c oauth2.Config) (*oauth2.Token, error) {
 	return authhandler.TokenSourceWithPKCE(context.Background(), &c, state, func(authCodeURL string) (code string, state string, err error) {
 		defer server.Close()
 		fmt.Fprintf(os.Stderr, "Please complete authentication in your browser...\n%s\n", authCodeURL)
+		var open string
+		switch runtime.GOOS {
+		case "windows":
+			open = "start"
+		case "darwin":
+			open = "open"
+		default:
+			open = "xdg-open"
+		}
 		// TODO: wait for server to start before opening browser
-		if _, err := exec.LookPath("open"); err == nil {
-			err = exec.Command("open", authCodeURL).Run()
+		if _, err := exec.LookPath(open); err == nil {
+			err = exec.Command(open, authCodeURL).Run()
 			if err != nil {
 				return "", "", err
 			}
