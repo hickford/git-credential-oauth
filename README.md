@@ -104,7 +104,7 @@ Note: Some non-conforming servers are confused by native apps that listen on a r
 |----------------|------------------------|----------------------|
 | Cross platform | ✓                      | ✓                     |
 | Linux arm64 support            | 🗙               | ✓                            |
-| Installation size (Linux) | 150 MB              | 5 MB                 |
+| Installation size (Linux) | [437 MB](https://github.com/git-ecosystem/git-credential-manager/issues/1212)              | 5 MB                 |
 | Storage        | In built     | Used in conjuction with other helpers |
 | Development    | .NET                   | Go                   |
 | Packaged in Linux distributions               | None            | [Multiple distros](https://repology.org/project/git-credential-oauth/versions) including [Fedora](https://packages.fedoraproject.org/pkgs/git-credential-oauth/git-credential-oauth/) and [Debian](https://tracker.debian.org/pkg/git-credential-oauth)       |
