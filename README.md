@@ -27,6 +27,10 @@ Test that Git can find the binary:
 
 If you have problems, make sure that the binary is [located in the path](https://superuser.com/a/284351/62691) and is executable.
 
+### Linux
+
+git-credential-oauth is also included in [many Linux distributions](https://repology.org/project/git-credential-oauth/versions) including [Fedora](https://packages.fedoraproject.org/pkgs/git-credential-oauth/git-credential-oauth/), [Debian](https://tracker.debian.org/pkg/git-credential-oauth) and [Ubuntu](https://packages.ubuntu.com/lunar/git-credential-oauth).
+
 ## Configuration
 
 As a convenience, you can run:
@@ -98,18 +102,22 @@ Note: Some non-conforming servers are confused by native apps that listen on a r
 
 ## Comparison with Git Credential Manager
 
-[Git Credential Manager](https://github.com/GitCredentialManager/git-credential-manager) has broader functionality. However because it's developed in .NET, GCM is [challenging for Linux distributions to package](https://github.com/dotnet/source-build/discussions/2960).
+[Git Credential Manager](https://github.com/GitCredentialManager/git-credential-manager) (GCM) is an excellent credential helper with broader functionality. However because it's developed in .NET, GCM is [prohibitively difficult for Linux distributions to package](https://github.com/dotnet/source-build/discussions/2960).
 
 |                | Git Credential Manager | git-credential-oauth |
 |----------------|------------------------|----------------------|
 | Cross platform | ✓                      | ✓                     |
 | Linux arm64 support            | 🗙               | ✓                            |
+| Packaged in Linux distributions               | 🗙            | ✓ [Many](https://repology.org/project/git-credential-oauth/versions) |
 | Installation size (Linux) | [82 MB](https://github.com/git-ecosystem/git-credential-manager/issues/1212#issuecomment-1530304873) | 5 MB                 |
-| Storage        | In built     | Used in conjuction with other helpers |
+| Installation size (Windows) | 4 MB | 5 MB                 |
+| Ships with Git for Windows | ✓ | 🗙 |
+| Credential storage | In built | Used together with any storage helper |
 | Development    | .NET                   | Go                   |
-| Packaged in Linux distributions               | None            | [Multiple distros](https://repology.org/project/git-credential-oauth/versions) including [Fedora](https://packages.fedoraproject.org/pkgs/git-credential-oauth/git-credential-oauth/) and [Debian](https://tracker.debian.org/pkg/git-credential-oauth)       |
+| Lines of code | 40,000 | 400 |
+| Authentication to Azure DevOps | ✓ | 🗙 |
 
-Disclaimer: I also contribute to GCM.
+I personally use GCM on Windows and git-credential-oauth on Linux.
 
 ## Development
 
