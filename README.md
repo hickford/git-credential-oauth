@@ -5,31 +5,47 @@ git-credential-oauth
 
 *No more passwords! No more personal access tokens! No more SSH keys!*
 
-A Git credential helper that securely authenticates to GitHub, GitLab, BitBucket and other forges using [OAuth](https://oauth.net/).
+git-credential-oauth is a Git credential helper that securely authenticates to GitHub, GitLab, BitBucket and Gerrit using [OAuth](https://datatracker.ietf.org/wg/oauth/about/).
 
 The first time you push, the helper will open a browser window to authenticate. Subsequent pushes within storage lifetime require no interaction.
 
 ## Motivation
 
-Two-factor authentication changed how users authenticate to websites, but Git still assumes users can type a password from memory. Personal access tokens are easy enough to copy and paste but awkward to store securely. [git-credential-cache](https://git-scm.com/docs/git-credential-cache) works well for passwords but not personal access tokens because the token is lost when the cache expires. All in all, the usability is so poor that the [most popular advice on StackOverflow](https://stackoverflow.com/a/35942890/284795) is to insecurely save credentials in plaintext.
+Git assumes users can type a password from memory, but hosts such as GitHub no longer accept passwords without two-factor authentication.
+Personal access tokens are easy enough to copy and paste but awkward to store securely.
+[git-credential-cache](https://git-scm.com/docs/git-credential-cache) works well for passwords but not personal access tokens because the token is lost when the cache expires.
+All in all, the usability is so poor that the [most popular advice on StackOverflow](https://stackoverflow.com/a/35942890/284795) is to insecurely save credentials in plaintext!
+
+OAuth has multiple advantages over personal access tokens or SSH:
+
+| Advantage                                  | OAuth | Personal access token | SSH |
+|--------------------------------------------|-------|-----------------------|-----|
+| Clone public repo without setup            | ✓     | ✓                     | 🗙   |
+| Authenticate to popular hosts without setup| ✓     | 🗙                     | 🗙   |
+| Server authenticity verified automatically | ✓     | ✓                     | 🗙   |
+| Protections against token theft[^1] | [✓](https://www.ietf.org/archive/id/draft-ietf-oauth-security-topics-22.html#name-refresh-token-protection)     | 🗙                     | *only if key has passphrase*   |
+
+[^1]: Scenario: an old disk backup is leaked.
 
 ## Installation
 
-Download from https://github.com/hickford/git-credential-oauth/releases.
+**Download** binary from https://github.com/hickford/git-credential-oauth/releases.
 
-Alternatively, Go users can install to `~/go/bin` with:
-
-	go install github.com/hickford/git-credential-oauth@latest
-
-Test that Git can find the binary:
+Then test that Git can find the application:
 
 	git credential-oauth
 
-If you have problems, make sure that the binary is [located in the path](https://superuser.com/a/284351/62691) and is executable.
+If you have problems, make sure that the binary is [located in the path](https://superuser.com/a/284351/62691) and [is executable](https://askubuntu.com/a/229592/18504).
+
+### Go users
+
+Go users can install the latest release to `~/go/bin` with:
+
+	go install github.com/hickford/git-credential-oauth@latest
 
 ### Linux
 
-git-credential-oauth is also included in [many Linux distributions](https://repology.org/project/git-credential-oauth/versions) including [Fedora](https://packages.fedoraproject.org/pkgs/git-credential-oauth/git-credential-oauth/), [Debian](https://tracker.debian.org/pkg/git-credential-oauth) and [Ubuntu](https://packages.ubuntu.com/lunar/git-credential-oauth).
+[Several Linux distributions](https://repology.org/project/git-credential-oauth/versions) include a git-credential-oauth package including [Fedora](https://packages.fedoraproject.org/pkgs/git-credential-oauth/git-credential-oauth/), [Debian](https://tracker.debian.org/pkg/git-credential-oauth) and [Ubuntu](https://packages.ubuntu.com/lunar/git-credential-oauth).
 
 ## Configuration
 
@@ -77,7 +93,7 @@ Edit `~/.gitconfig` manually, or run:
 
 To use with a custom host, eg. `gitlab.example.com`:
 
-1. Register an OAuth application on the host. How to do this depends on the host, but the [GitLab instructions](https://docs.gitlab.com/ee/integration/oauth_provider.html#user-owned-applications) are typical.
+1. Register an OAuth application on the host. The [GitLab instructions](https://docs.gitlab.com/ee/integration/oauth_provider.html#user-owned-applications) are typical.
 	* Specify name `git-credential-oauth`
 	* Specify redirect URI `http://127.0.0.1`.
 	* Select scopes for read and write Git operations.
@@ -92,7 +108,7 @@ git config --global credential.https://gitlab.example.com.oauthAuthURL /oauth/au
 git config --global credential.https://gitlab.example.com.oauthTokenURL /oauth/token
 ```
 
-Note: Some non-conforming servers are confused by native apps that listen on a random port. If you see an error about the redirect URI, try removing the port including prefix `%3A` from the auth URL. To workaround permanently, set an explicit port in the app redirect URI *and* Git config variable `credential.oauthRedirectURL`. Please report a bug to the server operators, citing OAuth [RFC 8252](https://datatracker.ietf.org/doc/html/rfc8252#section-7.3) "The authorization server MUST allow any port to be specified at the time of the request for loopback IP redirect URIs".
+Would you like to see universal GitLab support? *Vote for [GitLab issue #374172](https://gitlab.com/gitlab-org/gitlab/-/issues/374172).
 
 ## Philosophy
 
@@ -115,9 +131,10 @@ Note: Some non-conforming servers are confused by native apps that listen on a r
 | Credential storage | In built | Used together with any storage helper |
 | Development    | .NET                   | Go                   |
 | Lines of code | 40,000 | 400 |
+| Minimum HTTP requests | 1 | 0 |
 | Authentication to Azure DevOps | ✓ | 🗙 |
 
-I personally use GCM on Windows and git-credential-oauth on Linux.
+The maintainer personally uses GCM on Windows and git-credential-oauth on Linux.
 
 ## Development
 
