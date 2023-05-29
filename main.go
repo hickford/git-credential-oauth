@@ -84,6 +84,12 @@ var configByHost = map[string]oauth2.Config{
 		ClientSecret: "a805ce33fe571390c78dbc90c21f06b95cefa7451ed3e73ced92b67b2bc33583",
 		Endpoint:     replaceHost(endpoints.GitLab, "gitlab.haskell.org"),
 		Scopes:       []string{"read_repository", "write_repository"}},
+	// https://gitlab.alpinelinux.org/oauth/applications/7
+	"gitlab.alpinelinux.org": {
+		ClientID:     "6e1363d5730bd1068bc908d6eda9f4f7e72352147dbe15f441a2f9e2ce5aebee",
+		ClientSecret: "f8ea1a40260cc6f4dfa37ee0e8dede9e067fc34df2d2544fbdbc00b0cd3a6dcc",
+		Endpoint:     replaceHost(endpoints.GitLab, "gitlab.alpinelinux.org"),
+		Scopes:       []string{"read_repository", "write_repository"}},
 	// https://gitea.com/user/settings/applications/oauth2/218
 	"gitea.com": {
 		ClientID:     "e13f8ebc-398d-4091-9481-5a37a76b51f6",
