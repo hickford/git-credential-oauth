@@ -37,6 +37,10 @@ import (
 	"golang.org/x/oauth2/endpoints"
 )
 
+// configByHost lists default config for several public hosts.
+// NB. The client "secrets" below are non-confidential. This is expected for OAuth native apps (unlike web apps).
+// "It is assumed that any client authentication credentials included in the application can be extracted"
+// https://datatracker.ietf.org/doc/html/rfc6749#section-2.1
 var configByHost = map[string]oauth2.Config{
 	// https://github.com/settings/applications/2017944
 	"github.com": {
