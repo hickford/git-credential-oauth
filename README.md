@@ -98,12 +98,11 @@ To use with a custom host, eg. `gitlab.example.com`:
 	* Specify name `git-credential-oauth`
 	* Specify redirect URI `http://127.0.0.1`.
 	* Select scopes for read and write Git operations.
-2. Adjust the config commands below with the generated client id, client secret and *space-separated* scopes.
+2. Adjust the config commands below with the generated client id and *space-separated* scopes.
 3. Share the config commands with colleagues so they can skip the registration step.
 
 ```sh
 git config --global credential.https://gitlab.example.com.oauthClientId <CLIENTID>
-git config --global credential.https://gitlab.example.com.oauthClientSecret <CLIENTSECRET>
 git config --global credential.https://gitlab.example.com.oauthScopes read_repository write_repository
 git config --global credential.https://gitlab.example.com.oauthAuthURL /oauth/authorize
 git config --global credential.https://gitlab.example.com.oauthTokenURL /oauth/token
