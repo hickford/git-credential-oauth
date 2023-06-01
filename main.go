@@ -175,6 +175,10 @@ func main() {
 			c = configByHost["android.googlesource.com"]
 		}
 		if !found && looksLikeGitLab {
+			// TODO: universal GitLab support with constant client id
+			// https://gitlab.com/gitlab-org/gitlab/-/issues/374172
+			// c.ClientID = ...
+
 			// assumes GitLab installed at domain root
 			c.Endpoint = replaceHost(endpoints.GitLab, host)
 			c.Scopes = configByHost["gitlab.com"].Scopes
