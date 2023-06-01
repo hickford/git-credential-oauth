@@ -38,13 +38,15 @@ import (
 )
 
 // configByHost lists default config for several public hosts.
-// NB. The client "secrets" below are non-confidential. This is expected for OAuth native apps (unlike web apps).
-// "It is assumed that any client authentication credentials included in the application can be extracted"
-// https://datatracker.ietf.org/doc/html/rfc6749#section-2.1
 var configByHost = map[string]oauth2.Config{
 	// https://github.com/settings/applications/2017944
 	"github.com": {
-		ClientID:     "b895675a4e2cf54d5c6c",
+		ClientID: "b895675a4e2cf54d5c6c",
+		// IMPORTANT: The client "secret" below is non confidential.
+		// This is expected for OAuth native apps which (unlike web apps) are public clients
+		// "incapable of maintaining the confidentiality of their credentials"
+		// "It is assumed that any client authentication credentials included in the application can be extracted"
+		// https://datatracker.ietf.org/doc/html/rfc6749#section-2.1
 		ClientSecret: "2b746eea028711749c5062b9fe626fed78d03cc0",
 		Endpoint:     endpoints.GitHub,
 		Scopes:       []string{"repo", "gist", "workflow"}},
