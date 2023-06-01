@@ -38,16 +38,12 @@ import (
 )
 
 // configByHost lists default config for several public hosts.
-// NB. The client "secrets" below are non-confidential. This is expected for OAuth native apps (unlike web apps).
-// "It is assumed that any client authentication credentials included in the application can be extracted"
-// https://datatracker.ietf.org/doc/html/rfc6749#section-2.1
 var configByHost = map[string]oauth2.Config{
 	// https://github.com/settings/applications/2017944
 	"github.com": {
-		ClientID:     "b895675a4e2cf54d5c6c",
-		ClientSecret: "2b746eea028711749c5062b9fe626fed78d03cc0",
-		Endpoint:     endpoints.GitHub,
-		Scopes:       []string{"repo", "gist", "workflow"}},
+		ClientID: "b895675a4e2cf54d5c6c",
+		Endpoint: endpoints.GitHub,
+		Scopes:   []string{"repo", "gist", "workflow"}},
 	// https://gitlab.com/oauth/applications/232663
 	"gitlab.com": {
 		ClientID: "10bfbbf46e5b760b55ce772a262d7a0205eacc417816eb84d37d0fb02c89bb97",
@@ -85,25 +81,21 @@ var configByHost = map[string]oauth2.Config{
 		Scopes:   []string{"read_repository", "write_repository"}},
 	// https://gitea.com/user/settings/applications/oauth2/218
 	"gitea.com": {
-		ClientID:     "e13f8ebc-398d-4091-9481-5a37a76b51f6",
-		ClientSecret: "gto_gyodepoilwdv4g2nnigosazr2git7kkko3gadqgwqa3f6dxugi6a",
-		Endpoint:     oauth2.Endpoint{AuthURL: "https://gitea.com/login/oauth/authorize", TokenURL: "https://gitea.com/login/oauth/access_token"}},
+		ClientID: "e13f8ebc-398d-4091-9481-5a37a76b51f6",
+		Endpoint: oauth2.Endpoint{AuthURL: "https://gitea.com/login/oauth/authorize", TokenURL: "https://gitea.com/login/oauth/access_token"}},
 	// https://codeberg.org/user/settings/applications/oauth2/223
 	"codeberg.org": {
-		ClientID:     "246ca3e8-e974-430c-b9ec-3d4e2b54ad28",
-		ClientSecret: "gto_4stsgpwkgtsvayljdsg3xq33l2v3v245rlc45tnpt4cjp7eyw5gq",
-		Endpoint:     oauth2.Endpoint{AuthURL: "https://codeberg.org/login/oauth/authorize", TokenURL: "https://codeberg.org/login/oauth/access_token"}},
+		ClientID: "246ca3e8-e974-430c-b9ec-3d4e2b54ad28",
+		Endpoint: oauth2.Endpoint{AuthURL: "https://codeberg.org/login/oauth/authorize", TokenURL: "https://codeberg.org/login/oauth/access_token"}},
 	// https://bitbucket.org/hickford/workspace/settings/oauth-consumers/983448/edit
 	"bitbucket.org": {
-		ClientID:     "abET6ywGmTknNRvAMT",
-		ClientSecret: "df8rsnkAxuHCgZrSgu5ykJQjrbGVzT9m",
-		Endpoint:     endpoints.Bitbucket,
-		Scopes:       []string{"repository", "repository:write"}},
+		ClientID: "abET6ywGmTknNRvAMT",
+		Endpoint: endpoints.Bitbucket,
+		Scopes:   []string{"repository", "repository:write"}},
 	"android.googlesource.com": {
-		ClientID:     "897755559425-di05p489vpt7iv09thbf5a1ombcbs5v0.apps.googleusercontent.com",
-		ClientSecret: "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",
-		Endpoint:     endpoints.Google,
-		Scopes:       []string{"https://www.googleapis.com/auth/gerritcodereview"}},
+		ClientID: "897755559425-di05p489vpt7iv09thbf5a1ombcbs5v0.apps.googleusercontent.com",
+		Endpoint: endpoints.Google,
+		Scopes:   []string{"https://www.googleapis.com/auth/gerritcodereview"}},
 }
 
 var (
@@ -185,10 +177,6 @@ func main() {
 			bytes, err := cmd.Output()
 			if err == nil {
 				c.ClientID = strings.TrimSpace(string(bytes))
-			}
-			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthClientSecret", urll).Output()
-			if err == nil {
-				c.ClientSecret = strings.TrimSpace(string(bytes))
 			}
 			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthScopes", urll).Output()
 			if err == nil {
