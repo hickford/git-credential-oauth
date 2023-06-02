@@ -133,6 +133,7 @@ Would you like to see universal GitLab support? *Vote for [GitLab issue #374172]
 | Lines of code | 40,000 | 400 |
 | Minimum HTTP requests | 1 | 0 |
 | Authentication to Azure DevOps | ✓ | 🗙 |
+| Hosts with default config | 4 | 12 |
 
 The maintainer personally uses GCM on Windows and git-credential-oauth on Linux.
 
