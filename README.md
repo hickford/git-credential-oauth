@@ -42,6 +42,8 @@ If you have problems, make sure that the binary is [located in the path](https:/
 
 [Several Linux distributions](https://repology.org/project/git-credential-oauth/versions) include a git-credential-oauth package including [Fedora](https://packages.fedoraproject.org/pkgs/git-credential-oauth/git-credential-oauth/), [Debian](https://tracker.debian.org/pkg/git-credential-oauth) and [Ubuntu](https://packages.ubuntu.com/lunar/git-credential-oauth).
 
+[![Packaging status](https://repology.org/badge/vertical-allrepos/git-credential-oauth.svg?exclude_unsupported=1&header=)](https://repology.org/project/git-credential-oauth/versions)
+
 ### macOS
 
 macOS users can install from [Homebrew](https://formulae.brew.sh/formula/git-credential-oauth#default):
