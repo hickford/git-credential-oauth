@@ -38,15 +38,21 @@ Then test that Git can find the application:
 
 If you have problems, make sure that the binary is [located in the path](https://superuser.com/a/284351/62691) and [is executable](https://askubuntu.com/a/229592/18504).
 
+### Linux
+
+[Several Linux distributions](https://repology.org/project/git-credential-oauth/versions) include a git-credential-oauth package including [Fedora](https://packages.fedoraproject.org/pkgs/git-credential-oauth/git-credential-oauth/), [Debian](https://tracker.debian.org/pkg/git-credential-oauth) and [Ubuntu](https://packages.ubuntu.com/lunar/git-credential-oauth).
+
+### macOS
+
+macOS users can install from [Homebrew](https://formulae.brew.sh/formula/git-credential-oauth#default):
+
+	brew install git-credential-oauth
+
 ### Go users
 
 Go users can install the latest release to `~/go/bin` with:
 
 	go install github.com/hickford/git-credential-oauth@latest
-
-### Linux
-
-[Several Linux distributions](https://repology.org/project/git-credential-oauth/versions) include a git-credential-oauth package including [Fedora](https://packages.fedoraproject.org/pkgs/git-credential-oauth/git-credential-oauth/), [Debian](https://tracker.debian.org/pkg/git-credential-oauth) and [Ubuntu](https://packages.ubuntu.com/lunar/git-credential-oauth).
 
 ## Configuration
 
