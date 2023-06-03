@@ -46,9 +46,17 @@ If you have problems, make sure that the binary is [located in the path](https:/
 
 ### macOS
 
+#### Homebrew
+
 macOS users can install from [Homebrew](https://formulae.brew.sh/formula/git-credential-oauth#default):
 
 	brew install git-credential-oauth
+	
+#### MacPorts
+
+macOS users can alternatively install via [MacPorts](https://ports.macports.org/port/git-credential-oauth/):
+
+	sudo port install git-credential-oauth
 
 ### Go users
 
