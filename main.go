@@ -87,9 +87,8 @@ var configByHost = map[string]oauth2.Config{
 		Scopes:   []string{"read_repository", "write_repository"}},
 	// https://gitea.com/user/settings/applications/oauth2/218
 	"gitea.com": {
-		ClientID:     "e13f8ebc-398d-4091-9481-5a37a76b51f6",
-		ClientSecret: "gto_gyodepoilwdv4g2nnigosazr2git7kkko3gadqgwqa3f6dxugi6a",
-		Endpoint:     oauth2.Endpoint{AuthURL: "https://gitea.com/login/oauth/authorize", TokenURL: "https://gitea.com/login/oauth/access_token"}},
+		ClientID: "e13f8ebc-398d-4091-9481-5a37a76b51f6",
+		Endpoint: oauth2.Endpoint{AuthURL: "https://gitea.com/login/oauth/authorize", TokenURL: "https://gitea.com/login/oauth/access_token"}},
 	// https://codeberg.org/user/settings/applications/oauth2/223
 	"codeberg.org": {
 		ClientID:     "246ca3e8-e974-430c-b9ec-3d4e2b54ad28",
