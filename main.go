@@ -343,6 +343,7 @@ func getToken(c oauth2.Config, host string) (*oauth2.Token, error) {
 			DevopsConfig: c,
 			State:        state,
 			AuthHandler:  authHandler,
+			Verbose:      verbose,
 		}
 		return oauth2.ReuseTokenSource(nil, tokenSource).Token()
 	}

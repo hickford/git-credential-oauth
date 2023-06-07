@@ -20,10 +20,14 @@ type AzureTokenSource struct {
 	DevopsConfig oauth2.Config
 	State        string
 	AuthHandler  authhandler.AuthorizationHandler
+	Verbose      bool
 }
 
 func (source AzureTokenSource) Token() (*oauth2.Token, error) {
 	authCodeUrl := getAuthorizationRequestAzure(&source.DevopsConfig, source.State)
+	if source.Verbose {
+		fmt.Fprintln(os.Stderr, "Authorization code request url:", authCodeUrl)
+	}
 	code, state, err := source.AuthHandler(authCodeUrl)
 	if err != nil {
 		return nil, err
@@ -31,7 +35,7 @@ func (source AzureTokenSource) Token() (*oauth2.Token, error) {
 	if state != source.State {
 		return nil, errors.New("state mismatch in 3-legged-OAuth flow")
 	}
-	token, err := requestTokenAzure(&source.DevopsConfig, code)
+	token, err := source.requestTokenAzure(code)
 	if err != nil {
 		return nil, err
 	}
@@ -45,19 +49,21 @@ type tokenResponse struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-func requestTokenAzure(c *oauth2.Config, code string) (*oauth2.Token, error) {
+func (source AzureTokenSource) requestTokenAzure(code string) (*oauth2.Token, error) {
 	body := fmt.Sprintf("client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion=%s&grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=%s&redirect_uri=%s",
-		url.QueryEscape(c.ClientSecret),
+		url.QueryEscape(source.DevopsConfig.ClientSecret),
 		url.QueryEscape(code),
-		c.RedirectURL,
+		source.DevopsConfig.RedirectURL,
 	)
-	req, err := http.NewRequest(http.MethodPost, c.Endpoint.TokenURL, strings.NewReader(body))
+	req, err := http.NewRequest(http.MethodPost, source.DevopsConfig.Endpoint.TokenURL, strings.NewReader(body))
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	fmt.Fprintln(os.Stderr, "request url:", req.URL)
-	fmt.Fprintln(os.Stderr, "req body:", body)
+	if source.Verbose {
+		fmt.Fprintln(os.Stderr, "Token request url:", req.URL)
+		fmt.Fprintln(os.Stderr, "Token request body:", body)
+	}
 	hc := http.Client{}
 	resp, err := hc.Do(req)
 	if err != nil {
@@ -67,7 +73,9 @@ func requestTokenAzure(c *oauth2.Config, code string) (*oauth2.Token, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Fprintln(os.Stderr, "tokenResponse:", string(bodyBytes))
+	if source.Verbose {
+		fmt.Fprintln(os.Stderr, "Token response:", string(bodyBytes))
+	}
 	var tokenBody tokenResponse
 	err = json.Unmarshal(bodyBytes, &tokenBody)
 	if err != nil {
