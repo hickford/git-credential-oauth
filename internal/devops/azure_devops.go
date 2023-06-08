@@ -25,9 +25,6 @@ type AzureTokenSource struct {
 
 func (source AzureTokenSource) Token() (*oauth2.Token, error) {
 	authCodeUrl := getAuthorizationRequestAzure(&source.DevopsConfig, source.State)
-	if source.Verbose {
-		fmt.Fprintln(os.Stderr, "Authorization code request url:", authCodeUrl)
-	}
 	code, state, err := source.AuthHandler(authCodeUrl)
 	if err != nil {
 		return nil, err

@@ -52,18 +52,19 @@ var configByHost = map[string]oauth2.Config{
 		Scopes:       []string{"repo", "gist", "workflow"}},
 	// https://gitlab.com/oauth/applications/232663
 	"gitlab.com": {
-		ClientID: "",
-		Endpoint: endpoints.GitLab,
-		Scopes:   []string{"read_repository", "write_repository"}},
+		ClientID:     "",
+		ClientSecret: "",
+		Endpoint:     endpoints.GitLab,
+		Scopes:       []string{"read_repository", "write_repository"}},
 	// https://bitbucket.org/hickford/workspace/settings/oauth-consumers/983448/edit
 	"bitbucket.org": {
-		ClientID:     "dEd34gNgtytFqYKa5A",
-		ClientSecret: "KTcd9AayH76tqSW95ekvxFvjdCdqN5KS",
+		ClientID:     "",
+		ClientSecret: "",
 		Endpoint:     endpoints.Bitbucket,
 		Scopes:       []string{"repository", "repository:write"}},
 	"dev.azure.com": {
-		ClientID:     "af24e374-dc7d-4a41-b3af-2afdf898c864",
-		ClientSecret: "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Im9PdmN6NU1fN3AtSGpJS2xGWHo5M3VfVjBabyJ9.eyJjaWQiOiJhZjI0ZTM3NC1kYzdkLTRhNDEtYjNhZi0yYWZkZjg5OGM4NjQiLCJjc2kiOiIyZTI1NzdiNi04ZDdhLTQyNmMtOTRjMy1hZjE2MGIxNGUyNDgiLCJuYW1laWQiOiJlMDU3YzhlZC05MDU3LTYxZTYtOTAyYi1kODBkYWFkNGZiYTciLCJpc3MiOiJhcHAudnN0b2tlbi52aXN1YWxzdHVkaW8uY29tIiwiYXVkIjoiYXBwLnZzdG9rZW4udmlzdWFsc3R1ZGlvLmNvbSIsIm5iZiI6MTY4NjE0NjMyNiwiZXhwIjoxODQzOTk5MTI2fQ.R1qTX0h3EBT4PbYzqFYBeq_awn7DsiiAqFq3hUpKDq_kVlRKMkLo97hS-dyjQLqXo1ZMs37btxNKENuzS9_YiQJx9vZbg7qdi8JvFIU9HCQYg6q8IWLuACwj4ibAr8SX1TpqUMKkxN1MJco3XHkS7tVnNbWE4nGIy4DhrP8nr2JlEVeoFo2OW-Pxa1guEGZ0joUpnjdHyT07PzYUOw76Y9xU4YiqbgdiCwIdahBEV9myadUKKl8Tl4abwsaP1ilHfnoVer0RI1GJQVVMKyHQR2uoOwO3JiTqn8HxEDEBX0YNk2wTkxdfvb9oY8ST4TicPhQq-FPryDrXwbB7VcOpnA",
+		ClientID:     "",
+		ClientSecret: "",
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  "https://app.vssps.visualstudio.com/oauth2/authorize",
 			TokenURL: "https://app.vssps.visualstudio.com/oauth2/token",
@@ -71,7 +72,15 @@ var configByHost = map[string]oauth2.Config{
 		Scopes: []string{"vso.code_write"}},
 }
 
-const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+type GitRepo string
+
+const (
+	letterBytes         = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	Gitlab      GitRepo = "gitlab"
+	Github      GitRepo = "github"
+	Bitbucket   GitRepo = "bitbucket"
+	AzureDevops GitRepo = "devops"
+)
 
 var (
 	verbose bool
@@ -150,40 +159,18 @@ func main() {
 			c.Endpoint = replaceHost(endpoints.GitLab, host)
 			c.Scopes = configByHost["gitlab.com"].Scopes
 		}
-		gitPath, err := exec.LookPath("git")
-		if err == nil {
-			cmd := exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthClientId", urll)
-			bytes, err := cmd.Output()
-			if err == nil {
-				c.ClientID = strings.TrimSpace(string(bytes))
-			}
-			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthClientSecret", urll).Output()
-			if err == nil {
-				c.ClientSecret = strings.TrimSpace(string(bytes))
-			}
-			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthScopes", urll).Output()
-			if err == nil {
-				c.Scopes = []string{strings.TrimSpace(string(bytes))}
-			}
-			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthAuthURL", urll).Output()
-			if err == nil {
-				c.Endpoint.AuthURL, err = urlResolveReference(urll, strings.TrimSpace(string(bytes)))
-				if err != nil {
-					log.Fatalln(err)
+		if strings.Contains(host, "bitbucket.org") || strings.Contains(host, "dev.azure.com") {
+			username, ok := pairs["username"]
+			if ok {
+				if username != "" && username != "oauth2" && username != "x-token-auth" {
+					fmt.Fprintf(os.Stderr, "make sure to clone repository without specifying a username as otherwise caching of the oauth token will not work. Use git clone https://bitbucket.org/... instead of https://someuser@bitbucket.org/")
+					os.Exit(1)
 				}
-			}
-			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthTokenURL", urll).Output()
-			if err == nil {
-				c.Endpoint.TokenURL, err = urlResolveReference(urll, strings.TrimSpace(string(bytes)))
-				if err != nil {
-					log.Fatalln(err)
-				}
-			}
-			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthRedirectURL", urll).Output()
-			if err == nil {
-				c.RedirectURL = strings.TrimSpace(string(bytes))
 			}
 		}
+
+		updateOauthConfigBasedOnGitConfig(urll, &c, "")
+		updateOauthConfigBasedOnEnvironmentVariables(&c, urll)
 		if c.ClientID == "" || c.Endpoint.AuthURL == "" || c.Endpoint.TokenURL == "" {
 			if looksLikeGitLab {
 				fmt.Fprintf(os.Stderr, "It looks like you're authenticating to a GitLab instance! To configure git-credential-oauth for host %s, follow the instructions at https://github.com/hickford/git-credential-oauth/issues/18. You may need to register an OAuth application at https://%s/-/profile/applications\n", host, host)
@@ -281,8 +268,122 @@ func main() {
 	}
 }
 
+func updateOauthConfigBasedOnEnvironmentVariables(c *oauth2.Config, url string) {
+	detectGitRepo := getGitRepoFrom(url)
+	if detectGitRepo != "" {
+		res := os.Getenv(toEnvVariable(detectGitRepo, "CLIENT_ID"))
+		if res != "" {
+			c.ClientID = res
+		}
+		res = os.Getenv(toEnvVariable(detectGitRepo, "CLIENT_SECRET"))
+		if res != "" {
+			c.ClientSecret = res
+		}
+		res = os.Getenv(toEnvVariable(detectGitRepo, "AUTH_URL"))
+		if res != "" {
+			authUrl, err := urlResolveReference(url, res)
+			if err == nil {
+				c.Endpoint.AuthURL = authUrl
+			}
+			if err != nil {
+				log.Fatalln(err)
+
+			}
+		}
+		res = os.Getenv(toEnvVariable(detectGitRepo, "TOKEN_URL"))
+		if res != "" {
+			tokenUrl, err := urlResolveReference(url, res)
+			if err == nil {
+				c.Endpoint.TokenURL = tokenUrl
+			}
+			if err != nil {
+				log.Fatalln(err)
+
+			}
+		}
+		res = os.Getenv(toEnvVariable(detectGitRepo, "SCOPES"))
+		if res != "" {
+			c.Scopes = []string{res}
+		}
+	}
+}
+
+func toEnvVariable(detectGitRepo GitRepo, envSuffix string) string {
+	return fmt.Sprintf("GC_OAUTH_%s_%s", strings.ToUpper(string(detectGitRepo)), envSuffix)
+}
+
+func getGitRepoFrom(host string) GitRepo {
+	if strings.Contains(host, "bitbucket") {
+		return Bitbucket
+	}
+	if strings.Contains(host, "gitlab") {
+		return Gitlab
+	}
+	if strings.Contains(host, "github") {
+		return Github
+	}
+	if strings.Contains(host, "dev.azure") {
+		return AzureDevops
+	}
+	fmt.Fprintf(os.Stderr, "Could not detect which git repo based on host %s, will skip environment variables overwrite...", host)
+	return ""
+}
+
+func updateOauthConfigBasedOnGitConfig(urll string, c *oauth2.Config, file string) {
+	gitPath, err := exec.LookPath("git")
+
+	if err == nil {
+		output, err := getGitConfigParameter(urll, gitPath, "credential.oauthClientId", file)
+		if err == nil {
+			c.ClientID = output
+		}
+		output, err = getGitConfigParameter(urll, gitPath, "credential.oauthClientSecret", file)
+		if err == nil {
+			c.ClientSecret = output
+		}
+		output, err = getGitConfigParameter(urll, gitPath, "credential.oauthScopes", file)
+		if err == nil {
+			c.Scopes = []string{output}
+		}
+		output, err = getGitConfigParameter(urll, gitPath, "credential.oauthAuthURL", file)
+		if err == nil {
+			c.Endpoint.AuthURL, err = urlResolveReference(urll, output)
+			if err != nil {
+				log.Fatalln(err)
+			}
+		}
+		output, err = getGitConfigParameter(urll, gitPath, "credential.oauthTokenURL", file)
+		if err == nil {
+			c.Endpoint.TokenURL, err = urlResolveReference(urll, output)
+			if err != nil {
+				log.Fatalln(err)
+			}
+		}
+		output, err = getGitConfigParameter(urll, gitPath, "credential.oauthRedirectURL", file)
+		if err == nil {
+			c.RedirectURL = strings.TrimSpace(string(output))
+		}
+	}
+}
+
+func getGitConfigParameter(urll string, gitPath string, param string, file string) (string, error) {
+	args := []string{"config"}
+	//allow to limit the configuration files to look through
+	if file != "" {
+		args = append(args, fmt.Sprintf("--%s", file))
+	}
+	args = append(args, "--get-urlmatch", param, urll)
+	cmd := exec.Command(gitPath, args...)
+	output, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(output)), nil
+}
+
 func getToken(c oauth2.Config, host string) (*oauth2.Token, error) {
 	var state string
+	var err error
 	queries := make(chan url.Values)
 	ideUrl := os.Getenv("CONVEYOR_IDE_URL")
 	apiUrl := os.Getenv("CONVEYOR_API_URL")
@@ -294,20 +395,13 @@ func getToken(c oauth2.Config, host string) (*oauth2.Token, error) {
 	})
 	var server *httptest.Server
 	server = httptest.NewServer(handler)
-	// Allow for people to overwrite the redirectURL
+	// When in ide, we should do some magic to make sure the redirect reaches the ide
 	if ideUrl != "" {
 		c.RedirectURL = fmt.Sprintf("%s/api/v2/ide/callback", apiUrl)
-		// We customize the state to contain the necessary info such that our proxy knows where to route the traffic to
-		// The callback url should be specified statically for an application, so we need to put the dynamic parts in the state field as these are passed along.
-		ideId := strings.TrimSuffix(strings.Split(ideUrl, "ide/")[1], "/")
-		urlWithoutScheme := strings.TrimPrefix(server.URL, "http://")
-		extractPort := urlWithoutScheme[strings.Index(urlWithoutScheme, ":")+1:]
-		stateContent := map[string]string{"ide": ideId, "port": extractPort, "random": randomString(8)}
-		stateAsString, err := json.Marshal(stateContent)
+		state, err = constructStateWithIdeAndPortInfo(ideUrl, server.URL)
 		if err != nil {
 			return nil, err
 		}
-		state = base64.URLEncoding.EncodeToString(stateAsString)
 	} else {
 		wihtoutScheme := strings.TrimPrefix(server.URL, "http://")
 		c.RedirectURL = fmt.Sprintf("http://127.0.0.1:%s", strings.Split(wihtoutScheme, ":")[1])
@@ -349,6 +443,20 @@ func getToken(c oauth2.Config, host string) (*oauth2.Token, error) {
 	}
 
 	return authhandler.TokenSourceWithPKCE(context.Background(), &c, state, authHandler, generatePKCEParams()).Token()
+}
+
+// We customize the state to contain the necessary info such that our proxy knows where to route the traffic to
+// The callback url should be specified statically for an application, so we need to put the dynamic parts in the state field as these are passed along.
+func constructStateWithIdeAndPortInfo(ideUrl string, serverUrl string) (string, error) {
+	ideId := strings.TrimSuffix(strings.Split(ideUrl, "ide/")[1], "/")
+	urlWithoutScheme := strings.TrimPrefix(serverUrl, "http://")
+	extractPort := urlWithoutScheme[strings.Index(urlWithoutScheme, ":")+1:]
+	stateContent := map[string]string{"ide": ideId, "port": extractPort, "random": randomString(8)}
+	stateAsString, err := json.Marshal(stateContent)
+	if err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(stateAsString), nil
 }
 
 func randomString(n int) string {
