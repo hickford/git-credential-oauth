@@ -127,6 +127,9 @@ export GC_OAUTH_<gitRepoName>_SCOPES=<1 or more scopes separated by spaces>
 ```
 
 where gitRepoName is one of: `GITLAB, GITHUB, BITBUCKET, DEVOPS` at the moment 
+Note:
+For the cloud based git repositories `gitlab, github, bitbucket, azure devops`, we included the auth and token urls.
+When specifying them as environment variables, you only need to add the suffix (e.g. `oauth/authorize`) as this will be appended after the base url in your git clone command.
 
 Additionally, the tool relies on the `CONVEYOR_IDE_URL` and the `CONVEYOR_API_URL` env variables to detect it is running in an ide to construct the correct callback url.
 This is important because the callback-/redirectUrl defined by the git-credential-oauth tool should match exactly with the url defined when creating your oauth application.

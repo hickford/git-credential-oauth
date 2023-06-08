@@ -177,7 +177,6 @@ func main() {
 			}
 			return
 		}
-
 		var token *oauth2.Token
 		if pairs["oauth_refresh_token"] != "" {
 			// Try refresh token (fast, doesn't open browser)
@@ -406,6 +405,12 @@ func getToken(c oauth2.Config, host string) (*oauth2.Token, error) {
 		wihtoutScheme := strings.TrimPrefix(server.URL, "http://")
 		c.RedirectURL = fmt.Sprintf("http://127.0.0.1:%s", strings.Split(wihtoutScheme, ":")[1])
 		state = randomString(16)
+	}
+	if verbose {
+		oauthConfig, err := json.Marshal(c)
+		if err == nil {
+			fmt.Fprintln(os.Stderr, fmt.Sprintf("Using oauth config %s", string(oauthConfig)))
+		}
 	}
 	authHandler := func(authCodeURL string) (code string, state string, err error) {
 		defer server.Close()
