@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/oauth2"
@@ -59,6 +61,21 @@ func TestUpdateOauthConfigEnvConfig(t *testing.T) {
 	assert.Equal(t, c.Endpoint.AuthURL, fmt.Sprintf("https://gitlab.com%s", authUrl))
 	assert.Equal(t, c.Endpoint.TokenURL, fmt.Sprintf("https://gitlab.com%s", tokenUrl))
 	assert.Equal(t, c.Scopes, []string{scopesInput})
+}
+
+func TestConstructStateWithIdeAndPortInfo_devEnvironment(t *testing.T) {
+	ideId := "4732f041-0cd5-499b-b302-09d8096f8535"
+	localPort := "4435"
+	info, err := constructStateWithIdeAndPortInfo(fmt.Sprintf("/environments/nielstest/ide/%s/", ideId), fmt.Sprintf("http://localhost:%s", localPort))
+	assert.NoError(t, err)
+	var stateAsMap map[string]string
+	decodeString, err := base64.URLEncoding.DecodeString(info)
+	assert.NoError(t, err)
+	err = json.Unmarshal(decodeString, &stateAsMap)
+	assert.NoError(t, err)
+
+	assert.Equal(t, ideId, stateAsMap["ide"])
+	assert.Equal(t, localPort, stateAsMap["port"])
 }
 
 func initializeGitRepo(t *testing.T) (string, error) {
