@@ -106,6 +106,31 @@ Edit `~/.gitconfig` manually, or run:
 
 	git config --global --unset-all credential.helper oauth
 
+## Conveyor oauth application setup
+Register an Oauth application on the git repository:
+    * specify name: conveyor ide <tenant>
+    * specify redirect url: https://app.conveyordata.com/api/v2/ide/callback (or another cp-tenant when working on stg)
+    * Define the scopes: read, write permissions to git repo and potentially email address of the user
+
+### Use the configuration in Conveyor
+The git-credential oauth tool supports 2 way to overwrite default Oauth configuration, namely:
+- git config (as described in next section)
+- environment variables
+
+To specify the Oauth config for ides, you can use the following env variables:
+```sh
+export GC_OAUTH_<gitRepoName>_CLIENT_ID=<some-client-id>
+export GC_OAUTH_<gitRepoName>_CLIENT_SECRET=<some-client-id>
+export GC_OAUTH_<gitRepoName>_CLIENT_AUTH_URL=/oauth/authorize
+export GC_OAUTH_<gitRepoName>_CLIENT_TOKEN_URL=/oauth/token
+export GC_OAUTH_<gitRepoName>_SCOPES=<1 or more scopes separated by spaces>
+```
+
+where gitRepoName is one of: `GITLAB, GITHUB, BITBUCKET, DEVOPS` at the moment 
+
+Additionally, the tool relies on the `CONVEYOR_IDE_URL` and the `CONVEYOR_API_URL` env variables to detect it is running in an ide to construct the correct callback url.
+This is important because the callback-/redirectUrl defined by the git-credential-oauth tool should match exactly with the url defined when creating your oauth application.
+
 ## Custom hosts
 
 To use with a custom host, eg. `gitlab.example.com`:
