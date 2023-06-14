@@ -4,7 +4,14 @@ before:
 builds:
   - env:
       - CGO_ENABLED=0
-archives:
+    goos:
+      - linux
+    goarch:
+      - "386"
+      - amd64
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    ldflags:
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{ .CommitDate }} -X main.builtBy=goreleaser -X main.treeState={{ .IsGitDirty }}
 
 # modelines, feel free to remove those if you don't want/use them:
 # yaml-language-server: $schema=https://goreleaser.com/static/schema.json

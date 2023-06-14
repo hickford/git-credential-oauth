@@ -10,6 +10,19 @@ git-credential-oauth is a Git credential helper that securely authenticates to G
 The first time you authenticate, the helper opens a browser window to the host.
 Subsequent authentication within storage lifetime is non interactive.
 
+## Why fork the original project
+This is a fork of the [git-credential-oauth](https://github.com/hickford/git-credential-oauth) to make it work with ide's in our product [Conveyor](https://conveyordata.com). 
+We want to support the following git repositories:
+- azure devops (created a custom implementation: we will contribute this back to the main project if they want it)
+- gitlab
+- github
+- bitbucket
+
+Additionally, we made a couple of changes to make it easier to work for us:
+- We want the redirect URL's to go to our control plane API such that we can forward them to the correct ide.
+- We want to support overwriting the config through environment variables instead of only git config (easier to manage with kubernetes pods)
+- 
+
 ## Motivation
 
 Git assumes users can type a password from memory, but hosts such as GitHub no longer accept passwords without two-factor authentication.
@@ -105,6 +118,42 @@ Edit your [global git config](https://git-scm.com/docs/git-config#FILES) `~/.git
 Edit `~/.gitconfig` manually, or run:
 
 	git config --global --unset-all credential.helper oauth
+
+## Conveyor oauth application setup
+Register an Oauth application on the git repository:
+    * specify name: conveyor ide <tenant>
+    * specify redirect url: https://app.conveyordata.com/api/v2/ide/callback (or another cp-tenant when working on stg)
+    * Define the scopes: read, write permissions to git repo and potentially email address of the user
+
+Go to the following urls to create these applications:
+- https://dev.azure.com/datamindedbe/_usersSettings/authorizations 
+  - Normally everyone has access to the azure devops organization 
+- https://github.com/settings/developers
+  - I will transfer the oauth application to the datamindedbe organisation, so only admins of the organisation will be able to edit this
+
+Put the credentials in ssm as a secure string.
+
+### Use the configuration in Conveyor
+The git-credential oauth tool supports 2 way to overwrite default Oauth configuration, namely:
+- git config (as described in next section)
+- environment variables
+
+To specify the Oauth config for ides, you can use the following env variables:
+```sh
+export GC_OAUTH_<gitRepoName>_CLIENT_ID=<some-client-id>
+export GC_OAUTH_<gitRepoName>_CLIENT_SECRET=<some-client-id>
+export GC_OAUTH_<gitRepoName>_CLIENT_AUTH_URL=/oauth/authorize
+export GC_OAUTH_<gitRepoName>_CLIENT_TOKEN_URL=/oauth/token
+export GC_OAUTH_<gitRepoName>_SCOPES=<1 or more scopes separated by spaces>
+```
+
+where gitRepoName is one of: `GITLAB, GITHUB, BITBUCKET, DEVOPS` at the moment 
+Note:
+For the cloud based git repositories `gitlab, github, bitbucket, azure devops`, we included the auth and token urls.
+When specifying them as environment variables, you only need to add the suffix (e.g. `oauth/authorize`) as this will be appended after the base url in your git clone command.
+
+Additionally, the tool relies on the `CONVEYOR_IDE_URL` and the `CONVEYOR_API_URL` env variables to detect it is running in an ide to construct the correct callback url.
+This is important because the callback-/redirectUrl defined by the git-credential-oauth tool should match exactly with the url defined when creating your oauth application.
 
 ## Custom hosts
 
