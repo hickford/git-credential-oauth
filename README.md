@@ -10,6 +10,19 @@ git-credential-oauth is a Git credential helper that securely authenticates to G
 The first time you authenticate, the helper opens a browser window to the host.
 Subsequent authentication within storage lifetime is non interactive.
 
+## Why fork the original project
+This is a fork of the [git-credential-oauth](https://github.com/hickford/git-credential-oauth) to make it work with ide's in our product [Conveyor](https://conveyordata.com). 
+We want to support the following git repositories:
+- azure devops (created a custom implementation: we will contribute this back to the main project if they want it)
+- gitlab
+- github
+- bitbucket
+
+Additionally, we made a couple of changes to make it easier to work for us:
+- We want the redirect URL's to go to our control plane API such that we can forward them to the correct ide.
+- We want to support overwriting the config through environment variables instead of only git config (easier to manage with kubernetes pods)
+- 
+
 ## Motivation
 
 Git assumes users can type a password from memory, but hosts such as GitHub no longer accept passwords without two-factor authentication.
@@ -111,6 +124,14 @@ Register an Oauth application on the git repository:
     * specify name: conveyor ide <tenant>
     * specify redirect url: https://app.conveyordata.com/api/v2/ide/callback (or another cp-tenant when working on stg)
     * Define the scopes: read, write permissions to git repo and potentially email address of the user
+
+Go to the following urls to create these applications:
+- https://dev.azure.com/datamindedbe/_usersSettings/authorizations 
+  - Normally everyone has access to the azure devops organization 
+- https://github.com/settings/developers
+  - I will transfer the oauth application to the datamindedbe organisation, so only admins of the organisation will be able to edit this
+
+Put the credentials in ssm as a secure string.
 
 ### Use the configuration in Conveyor
 The git-credential oauth tool supports 2 way to overwrite default Oauth configuration, namely:

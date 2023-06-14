@@ -159,24 +159,15 @@ func main() {
 			c.Endpoint = replaceHost(endpoints.GitLab, host)
 			c.Scopes = configByHost["gitlab.com"].Scopes
 		}
-		if strings.Contains(host, "bitbucket.org") || strings.Contains(host, "dev.azure.com") {
-			username, ok := pairs["username"]
-			if ok {
-				if username != "" && username != "oauth2" && username != "x-token-auth" {
-					fmt.Fprintf(os.Stderr, "make sure to clone repository without specifying a username as otherwise caching of the oauth token will not work. Use git clone https://bitbucket.org/... instead of https://someuser@bitbucket.org/")
-					os.Exit(1)
-				}
-			}
+		if looksLikeGitLab {
+			fmt.Fprintf(os.Stderr, "It looks like you're authenticating to a GitLab instance! To configure git-credential-oauth for host %s, follow the instructions at https://github.com/hickford/git-credential-oauth/issues/18. You may need to register an OAuth application at https://%s/-/profile/applications\n", host, host)
 		}
+		handleUsernamePrefixInCloneUrls(host, pairs)
 
 		updateOauthConfigBasedOnGitConfig(urll, &c, "")
 		updateOauthConfigBasedOnEnvironmentVariables(&c, urll)
-		if c.ClientID == "" || c.Endpoint.AuthURL == "" || c.Endpoint.TokenURL == "" {
-			if looksLikeGitLab {
-				fmt.Fprintf(os.Stderr, "It looks like you're authenticating to a GitLab instance! To configure git-credential-oauth for host %s, follow the instructions at https://github.com/hickford/git-credential-oauth/issues/18. You may need to register an OAuth application at https://%s/-/profile/applications\n", host, host)
-			}
-			return
-		}
+		handleMissingConfigForGitRepo(c)
+
 		var token *oauth2.Token
 		if pairs["oauth_refresh_token"] != "" {
 			// Try refresh token (fast, doesn't open browser)
@@ -264,6 +255,29 @@ func main() {
 			}
 		}
 		fmt.Fprintf(os.Stderr, "%sd successfully\n", args[0])
+	}
+}
+
+func handleMissingConfigForGitRepo(c oauth2.Config) {
+	if c.ClientID == "" || c.ClientSecret == "" {
+		fmt.Fprintln(os.Stderr, "Could not find the correct clientId and clientSecret for the git-credentials-oauth application needed to request oauth credentials")
+		os.Exit(1)
+	}
+	if c.Endpoint.AuthURL == "" || c.Endpoint.TokenURL == "" {
+		fmt.Fprintln(os.Stderr, "Could not find the correct clientId and clientSecret for the git-credentials-oauth application needed to request oauth credentials")
+		os.Exit(1)
+	}
+}
+
+func handleUsernamePrefixInCloneUrls(host string, pairs map[string]string) {
+	if strings.Contains(host, "bitbucket.org") || strings.Contains(host, "dev.azure.com") {
+		username, ok := pairs["username"]
+		if ok {
+			if username != "" && username != "oauth2" && username != "x-token-auth" {
+				fmt.Fprintf(os.Stderr, "make sure to clone repository without specifying a username as otherwise caching of the oauth token will not work. Use git clone https://bitbucket.org/... instead of https://someuser@bitbucket.org/")
+				os.Exit(1)
+			}
+		}
 	}
 }
 
@@ -422,7 +436,7 @@ func getToken(c oauth2.Config, host string) (*oauth2.Token, error) {
 		case "darwin":
 			open = "open"
 		default:
-			open = "xdg-open"
+			open = "www-browser"
 		}
 		// TODO: wait for server to start before opening browser
 		if _, err := exec.LookPath(open); err == nil {
