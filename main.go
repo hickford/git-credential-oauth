@@ -173,6 +173,7 @@ func main() {
 		}
 		host := pairs["host"]
 		looksLikeGitLab := strings.HasPrefix(host, "gitlab.") || strings.Contains(pairs["wwwauth[]"], `Realm="GitLab"`)
+		looksLikeGitea := strings.Contains(pairs["wwwauth[]"], `realm="Gitea"`)
 		urll := fmt.Sprintf("%s://%s", pairs["protocol"], host)
 		c, found := configByHost[host]
 		if !found && strings.HasSuffix(host, ".googlesource.com") {
@@ -184,8 +185,19 @@ func main() {
 			// c.ClientID = ...
 
 			// assumes GitLab installed at domain root
-			c.Endpoint = replaceHost(endpoints.GitLab, host)
+			c.Endpoint = oauth2.Endpoint{
+				AuthURL:  fmt.Sprintf("%s/oauth/authorize", urll),
+				TokenURL: fmt.Sprintf("%s/oauth/token", urll),
+			}
 			c.Scopes = configByHost["gitlab.com"].Scopes
+		}
+		if !found && looksLikeGitea {
+			c.ClientID = "a4792ccc-144e-407e-86c9-5e7d8d9c3269"
+			c.Endpoint = oauth2.Endpoint{
+				AuthURL:  fmt.Sprintf("%s/login/oauth/authorize", urll),
+				TokenURL: fmt.Sprintf("%s/login/oauth/access_token", urll),
+			}
+			c.Scopes = configByHost["gitea.com"].Scopes
 		}
 		gitPath, err := exec.LookPath("git")
 		if err == nil {
