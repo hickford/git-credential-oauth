@@ -113,13 +113,17 @@ var (
 	version = "dev"
 )
 
-func printVersion() {
+func getVersion() string {
 	info, ok := debug.ReadBuildInfo()
 	if ok && version == "dev" {
 		version = info.Main.Version
 	}
+	return version
+}
+
+func printVersion() {
 	if verbose {
-		fmt.Fprintf(os.Stderr, "git-credential-oauth %s\n", version)
+		fmt.Fprintf(os.Stderr, "git-credential-oauth %s\n", getVersion())
 	}
 }
 
@@ -313,13 +317,26 @@ func main() {
 	}
 }
 
+var template string = `<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Git authentication</title>
+</head>
+<body>
+<p>Success. You may close this page and return to Git.</p>
+<p style="font-style: italic">&mdash;<a href="https://github.com/hickford/git-credential-oauth">git-credential-oauth</a> %s</p>
+</body>
+</html>`
+
 func getToken(c oauth2.Config) (*oauth2.Token, error) {
 	state := randomString(16)
 	queries := make(chan url.Values)
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// TODO: consider whether to show errors in browser or command line
 		queries <- r.URL.Query()
-		w.Write([]byte("Success. You may close this page and return to Git."))
+		w.Header().Add("Content-Type", "text/html")
+		html := fmt.Sprintf(template, getVersion())
+		w.Write([]byte(html))
 	})
 	var server *httptest.Server
 	if c.RedirectURL == "" {
