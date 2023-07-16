@@ -149,7 +149,7 @@ func main() {
 		flag.PrintDefaults()
 		fmt.Fprintln(os.Stderr, "")
 		fmt.Fprintln(os.Stderr, "Actions:")
-		fmt.Fprintln(os.Stderr, "  get            Generate credential")
+		fmt.Fprintln(os.Stderr, "  get            Generate credential [called by Git]")
 		fmt.Fprintln(os.Stderr, "  configure      Configure as Git credential helper")
 		fmt.Fprintln(os.Stderr, "  unconfigure    Unconfigure as Git credential helper")
 		fmt.Fprintln(os.Stderr, "")
