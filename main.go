@@ -90,9 +90,8 @@ var configByHost = map[string]oauth2.Config{
 		Endpoint: oauth2.Endpoint{AuthURL: "https://gitea.com/login/oauth/authorize", TokenURL: "https://gitea.com/login/oauth/access_token"}},
 	// https://codeberg.org/user/settings/applications/oauth2/223
 	"codeberg.org": {
-		ClientID:     "246ca3e8-e974-430c-b9ec-3d4e2b54ad28",
-		ClientSecret: "gto_4stsgpwkgtsvayljdsg3xq33l2v3v245rlc45tnpt4cjp7eyw5gq",
-		Endpoint:     oauth2.Endpoint{AuthURL: "https://codeberg.org/login/oauth/authorize", TokenURL: "https://codeberg.org/login/oauth/access_token"}},
+		ClientID: "246ca3e8-e974-430c-b9ec-3d4e2b54ad28",
+		Endpoint: oauth2.Endpoint{AuthURL: "https://codeberg.org/login/oauth/authorize", TokenURL: "https://codeberg.org/login/oauth/access_token"}},
 	// https://bitbucket.org/hickford/workspace/settings/oauth-consumers/983448/edit
 	"bitbucket.org": {
 		ClientID:     "abET6ywGmTknNRvAMT",
