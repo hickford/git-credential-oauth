@@ -33,7 +33,6 @@ import (
 	"strings"
 
 	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/authhandler"
 	"golang.org/x/oauth2/endpoints"
 )
 
@@ -356,31 +355,35 @@ func getToken(c oauth2.Config) (*oauth2.Token, error) {
 		server.Start()
 	}
 	defer server.Close()
-	return authhandler.TokenSourceWithPKCE(context.Background(), &c, state, func(authCodeURL string) (code string, state string, err error) {
-		defer server.Close()
-		fmt.Fprintf(os.Stderr, "Please complete authentication in your browser...\n%s\n", authCodeURL)
-		var open string
-		switch runtime.GOOS {
-		case "windows":
-			open = "start"
-		case "darwin":
-			open = "open"
-		default:
-			open = "xdg-open"
+	verifier := generateVerifier()
+	authCodeURL := c.AuthCodeURL(state, challengeOption(verifier), s256Option())
+	fmt.Fprintf(os.Stderr, "Please complete authentication in your browser...\n%s\n", authCodeURL)
+	var open string
+	switch runtime.GOOS {
+	case "windows":
+		open = "start"
+	case "darwin":
+		open = "open"
+	default:
+		open = "xdg-open"
+	}
+	// TODO: wait for server to start before opening browser
+	if _, err := exec.LookPath(open); err == nil {
+		err = exec.Command(open, authCodeURL).Run()
+		if err != nil {
+			return nil, err
 		}
-		// TODO: wait for server to start before opening browser
-		if _, err := exec.LookPath(open); err == nil {
-			err = exec.Command(open, authCodeURL).Run()
-			if err != nil {
-				return "", "", err
-			}
-		}
-		query := <-queries
-		if verbose {
-			fmt.Fprintln(os.Stderr, "query:", query)
-		}
-		return query.Get("code"), query.Get("state"), nil
-	}, generatePKCEParams()).Token()
+	}
+	query := <-queries
+	server.Close()
+	if verbose {
+		fmt.Fprintln(os.Stderr, "query:", query)
+	}
+	if query.Get("state") != state {
+		return nil, fmt.Errorf("state mismatch")
+	}
+	code := query.Get("code")
+	return c.Exchange(context.Background(), code, verifierOption(verifier))
 }
 
 func randomString(n int) string {
@@ -401,18 +404,6 @@ func replaceHost(e oauth2.Endpoint, host string) oauth2.Endpoint {
 	return e
 }
 
-func generatePKCEParams() *authhandler.PKCEParams {
-	verifier := randomString(32)
-	sha := sha256.Sum256([]byte(verifier))
-	challenge := base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(sha[:])
-
-	return &authhandler.PKCEParams{
-		Challenge:       challenge,
-		ChallengeMethod: "S256",
-		Verifier:        verifier,
-	}
-}
-
 func urlResolveReference(base, ref string) (string, error) {
 	base1, err := url.Parse(base)
 	if err != nil {
@@ -423,4 +414,43 @@ func urlResolveReference(base, ref string) (string, error) {
 		return "", err
 	}
 	return base1.ResolveReference(ref1).String(), nil
+}
+
+const (
+	codeChallengeKey       = "code_challenge"
+	codeChallengeMethodKey = "code_challenge_method"
+	codeVerifierKey        = "code_verifier"
+)
+
+// generateVerifier generates a code verifier with 32 octets of randomness.
+// This follows recommendations in RFC 7636 (PKCE).
+//
+// A fresh verifier should be generated for each authorization.
+// S256ChallengeOption(verifier) should then be passed to Config.AuthCodeURL and
+// VerifierOption(verifier) to Config.Exchange.
+func generateVerifier() string {
+	// "RECOMMENDED that the output of a suitable random number generator be
+	// used to create a 32-octet sequence.  The octet sequence is then
+	// base64url-encoded to produce a 43-octet URL-safe string to use as the
+	// code verifier."
+	// https://datatracker.ietf.org/doc/html/rfc7636#section-4.1
+	data := make([]byte, 32)
+	if _, err := io.ReadFull(rand.Reader, data); err != nil {
+		panic(err)
+	}
+	return base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(data)
+}
+
+func challengeOption(verifier string) oauth2.AuthCodeOption {
+	sha := sha256.Sum256([]byte(verifier))
+	challenge := base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(sha[:])
+	return oauth2.SetAuthURLParam(codeChallengeKey, challenge)
+}
+
+func verifierOption(verifier string) oauth2.AuthCodeOption {
+	return oauth2.SetAuthURLParam(codeVerifierKey, verifier)
+}
+
+func s256Option() oauth2.AuthCodeOption {
+	return oauth2.SetAuthURLParam(codeChallengeMethodKey, "S256")
 }
