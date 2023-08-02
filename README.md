@@ -1,8 +1,6 @@
 git-credential-oauth
 ====================
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/hickford/git-credential-oauth.svg)](https://pkg.go.dev/github.com/hickford/git-credential-oauth)
-
 *No more passwords! No more personal access tokens! No more SSH keys!*
 
 git-credential-oauth is a Git credential helper that securely authenticates to GitHub, GitLab, BitBucket and Gerrit using [OAuth](https://datatracker.ietf.org/wg/oauth/about/).
@@ -140,7 +138,7 @@ Would you like to see universal GitLab support? *Vote for [GitLab issue #374172]
 |----------------|------------------------|----------------------|
 | Cross platform | ✓                      | ✓                     |
 | Linux arm64 support            | 🗙               | ✓                            |
-| Packaged in Linux distributions               | 🗙            | ✓ [Many](https://repology.org/project/git-credential-oauth/versions) |
+| Packaged in Linux distributions               | 🗙            | ✓ ([many](https://repology.org/project/git-credential-oauth/versions)) |
 | Installation size (Linux) | [82 MB](https://github.com/git-ecosystem/git-credential-manager/issues/1212#issuecomment-1530304873) | 5 MB                 |
 | Installation size (Windows) | 4 MB | 5 MB                 |
 | Ships with Git for Windows | ✓ | 🗙 |
@@ -148,7 +146,7 @@ Would you like to see universal GitLab support? *Vote for [GitLab issue #374172]
 | Development    | .NET                   | Go                   |
 | Lines of code | 40,000 | 400 |
 | Minimum HTTP requests | 1 | 0 |
-| Authentication to Azure DevOps | ✓ | 🗙 |
+| Authentication to Azure DevOps | ✓ | 🗙 (try [git-credential-azure](https://github.com/hickford/git-credential-azure)) |
 | Hosts with default config | 4 | 12 |
 
 The maintainer personally uses GCM on Windows and git-credential-oauth on Linux.
