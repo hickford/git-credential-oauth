@@ -180,6 +180,7 @@ echo url=https://gitlab.com | git credential fill
 
 To see which helpers Git calls, set `export GIT_TRACE=1`.
 
-## Disclaimer
+## See also
 
-This is not an officially supported Google product.
+* [git-credential-azure](https://github.com/hickford/git-credential-azure): a Git credential manager that authenticates to Azure Repos
+* [Git Credential Manager](https://github.com/git-ecosystem/git-credential-manager)
