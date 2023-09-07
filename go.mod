@@ -2,7 +2,7 @@ module github.com/hickford/git-credential-oauth
 
 go 1.19
 
-require golang.org/x/oauth2 v0.12.1-0.20230906163520-e3fb0fb3af0e
+require golang.org/x/oauth2 v0.12.1-0.20230907174942-55cd552a3654
 
 require (
 	github.com/golang/protobuf v1.5.3 // indirect

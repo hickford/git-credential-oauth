@@ -15,9 +15,6 @@ package main
 
 import (
 	"context"
-	"crypto/rand"
-	"crypto/sha256"
-	"encoding/base64"
 	"flag"
 	"fmt"
 	"io"
@@ -345,7 +342,7 @@ var template string = `<!DOCTYPE html>
 </html>`
 
 func getToken(c oauth2.Config) (*oauth2.Token, error) {
-	state := randomString(16)
+	state := oauth2.GenerateVerifier()
 	queries := make(chan url.Values)
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// TODO: consider whether to show errors in browser or command line
@@ -372,8 +369,8 @@ func getToken(c oauth2.Config) (*oauth2.Token, error) {
 		server.Start()
 	}
 	defer server.Close()
-	verifier := generateVerifier()
-	authCodeURL := c.AuthCodeURL(state, challengeOption(verifier), s256Option())
+	verifier := oauth2.GenerateVerifier()
+	authCodeURL := c.AuthCodeURL(state, oauth2.S256ChallengeOption(verifier))
 	fmt.Fprintf(os.Stderr, "Please complete authentication in your browser...\n%s\n", authCodeURL)
 	var open string
 	switch runtime.GOOS {
@@ -400,7 +397,7 @@ func getToken(c oauth2.Config) (*oauth2.Token, error) {
 		return nil, fmt.Errorf("state mismatch")
 	}
 	code := query.Get("code")
-	return c.Exchange(context.Background(), code, verifierOption(verifier))
+	return c.Exchange(context.Background(), code, oauth2.VerifierOption(verifier))
 }
 
 func getDeviceToken(c oauth2.Config) (*oauth2.Token, error) {
@@ -417,14 +414,6 @@ func getDeviceToken(c oauth2.Config) (*oauth2.Token, error) {
 	}
 	fmt.Fprintf(os.Stderr, "Please enter code %s at %s\n", deviceAuth.UserCode, deviceAuth.VerificationURI)
 	return c.DeviceAccessToken(context.Background(), deviceAuth)
-}
-
-func randomString(n int) string {
-	data := make([]byte, n)
-	if _, err := io.ReadFull(rand.Reader, data); err != nil {
-		panic(err)
-	}
-	return base64.StdEncoding.EncodeToString(data)
 }
 
 func replaceHost(e oauth2.Endpoint, host string) oauth2.Endpoint {
@@ -447,43 +436,4 @@ func urlResolveReference(base, ref string) (string, error) {
 		return "", err
 	}
 	return base1.ResolveReference(ref1).String(), nil
-}
-
-const (
-	codeChallengeKey       = "code_challenge"
-	codeChallengeMethodKey = "code_challenge_method"
-	codeVerifierKey        = "code_verifier"
-)
-
-// generateVerifier generates a code verifier with 32 octets of randomness.
-// This follows recommendations in RFC 7636 (PKCE).
-//
-// A fresh verifier should be generated for each authorization.
-// S256ChallengeOption(verifier) should then be passed to Config.AuthCodeURL and
-// VerifierOption(verifier) to Config.Exchange.
-func generateVerifier() string {
-	// "RECOMMENDED that the output of a suitable random number generator be
-	// used to create a 32-octet sequence.  The octet sequence is then
-	// base64url-encoded to produce a 43-octet URL-safe string to use as the
-	// code verifier."
-	// https://datatracker.ietf.org/doc/html/rfc7636#section-4.1
-	data := make([]byte, 32)
-	if _, err := io.ReadFull(rand.Reader, data); err != nil {
-		panic(err)
-	}
-	return base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(data)
-}
-
-func challengeOption(verifier string) oauth2.AuthCodeOption {
-	sha := sha256.Sum256([]byte(verifier))
-	challenge := base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(sha[:])
-	return oauth2.SetAuthURLParam(codeChallengeKey, challenge)
-}
-
-func verifierOption(verifier string) oauth2.AuthCodeOption {
-	return oauth2.SetAuthURLParam(codeVerifierKey, verifier)
-}
-
-func s256Option() oauth2.AuthCodeOption {
-	return oauth2.SetAuthURLParam(codeChallengeMethodKey, "S256")
 }
