@@ -153,6 +153,12 @@ func main() {
 		fmt.Fprintln(os.Stderr, "See also https://github.com/hickford/git-credential-oauth")
 	}
 	flag.Parse()
+	if device {
+		c := configByHost["android.googlesource.com"]
+		c.ClientID = "897755559425-82ha835rqnprtctvm8shjc2p86bk0eru.apps.googleusercontent.com"
+		c.ClientSecret = "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"
+		configByHost["android.googlesource.com"] = c
+	}
 	args := flag.Args()
 	if len(args) != 1 {
 		flag.Usage()
