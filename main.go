@@ -407,10 +407,6 @@ func getToken(c oauth2.Config) (*oauth2.Token, error) {
 }
 
 func getDeviceToken(c oauth2.Config) (*oauth2.Token, error) {
-	if c.Endpoint.DeviceAuthURL == "" {
-		fmt.Fprintln(os.Stderr, "host doesn't support device auth")
-		os.Exit(0)
-	}
 	deviceAuth, err := c.DeviceAuth(context.Background())
 	if err != nil {
 		log.Fatalln(err)
