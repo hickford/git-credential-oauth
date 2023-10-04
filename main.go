@@ -376,12 +376,22 @@ func getToken(c oauth2.Config) (*oauth2.Token, error) {
 		if err != nil {
 			log.Fatalln(err)
 		}
+		origHostname := url.Hostname()
+		if url.Port() == "" {
+			url.Host += ":0"
+		}
 		l, err := net.Listen("tcp", url.Host)
 		if err != nil {
 			log.Fatalln(err)
 		}
 		server.Listener = l
 		server.Start()
+		url.Host = l.Addr().String()
+		if url.Hostname() != origHostname {
+			// restore original hostname such as 'localhost'
+			url.Host = fmt.Sprintf("%s:%s", origHostname, url.Port())
+		}
+		c.RedirectURL = url.String()
 	}
 	defer server.Close()
 	verifier := oauth2.GenerateVerifier()
