@@ -438,13 +438,22 @@ func getDeviceToken(c oauth2.Config) (*oauth2.Token, error) {
 }
 
 func replaceHost(e oauth2.Endpoint, host string) oauth2.Endpoint {
-	url, err := url.Parse(e.AuthURL)
+	e.AuthURL = replaceHostInURL(e.AuthURL, host)
+	e.TokenURL = replaceHostInURL(e.TokenURL, host)
+	e.DeviceAuthURL = replaceHostInURL(e.DeviceAuthURL, host)
+	return e
+}
+
+func replaceHostInURL(originalURL, host string) string {
+	if originalURL == "" {
+		return ""
+	}
+	u, err := url.Parse(originalURL)
 	if err != nil {
 		panic(err)
 	}
-	e.AuthURL = strings.Replace(e.AuthURL, url.Host, host, 1)
-	e.TokenURL = strings.Replace(e.TokenURL, url.Host, host, 1)
-	return e
+	u.Host = host
+	return u.String()
 }
 
 func urlResolveReference(base, ref string) (string, error) {
