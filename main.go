@@ -178,6 +178,7 @@ func main() {
 		host := pairs["host"]
 		looksLikeGitLab := strings.HasPrefix(host, "gitlab.") || strings.Contains(pairs["wwwauth[]"], `Realm="GitLab"`)
 		looksLikeGitea := strings.Contains(pairs["wwwauth[]"], `realm="Gitea"`)
+		looksLikeGitHub := strings.HasPrefix(host, "github.") || strings.Contains(pairs["wwwauth[]"], `realm="GitHub"`)
 		urll := fmt.Sprintf("%s://%s", pairs["protocol"], host)
 		c, found := configByHost[host]
 		if !found && strings.HasSuffix(host, ".googlesource.com") {
@@ -202,6 +203,14 @@ func main() {
 				TokenURL: fmt.Sprintf("%s/login/oauth/access_token", urll),
 			}
 			c.Scopes = configByHost["gitea.com"].Scopes
+		}
+		if !found && looksLikeGitHub {
+			c.Endpoint = oauth2.Endpoint{
+				AuthURL:       fmt.Sprintf("%s/login/oauth/authorize", urll),
+				TokenURL:      fmt.Sprintf("%s/login/oauth/access_token", urll),
+				DeviceAuthURL: fmt.Sprintf("%s/login/device/code", urll),
+			}
+			c.Scopes = configByHost["github.com"].Scopes
 		}
 		gitPath, err := exec.LookPath("git")
 		if err == nil {
