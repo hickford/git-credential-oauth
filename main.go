@@ -387,6 +387,9 @@ func getToken(c oauth2.Config) (*oauth2.Token, error) {
 		server.Listener = l
 		server.Start()
 		url.Host = l.Addr().String()
+		if verbose {
+			fmt.Fprintf(os.Stderr, "listening on %s", url.Host)
+		}
 		if url.Hostname() != origHostname {
 			// restore original hostname such as 'localhost'
 			url.Host = fmt.Sprintf("%s:%s", origHostname, url.Port())
