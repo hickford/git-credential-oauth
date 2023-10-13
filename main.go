@@ -434,7 +434,7 @@ func getDeviceToken(c oauth2.Config) (*oauth2.Token, error) {
 		log.Fatalln(err)
 	}
 	if verbose {
-		fmt.Fprintln(os.Stderr, deviceAuth)
+		fmt.Fprintf(os.Stderr, "%+v\n", deviceAuth)
 	}
 	fmt.Fprintf(os.Stderr, "Please enter code %s at %s\n", deviceAuth.UserCode, deviceAuth.VerificationURI)
 	return c.DeviceAccessToken(context.Background(), deviceAuth)
