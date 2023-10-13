@@ -135,6 +135,7 @@ func parse(input string) map[string]string {
 }
 
 func main() {
+	ctx := context.Background()
 	flag.BoolVar(&verbose, "verbose", false, "log debug information to stderr")
 	var device bool
 	flag.BoolVar(&device, "device", false, "instead of opening a web browser locally, print a code to enter on another device")
@@ -259,7 +260,7 @@ func main() {
 			if verbose {
 				fmt.Fprintln(os.Stderr, "refreshing token...")
 			}
-			token, err = c.TokenSource(context.Background(), &oauth2.Token{RefreshToken: pairs["oauth_refresh_token"]}).Token()
+			token, err = c.TokenSource(ctx, &oauth2.Token{RefreshToken: pairs["oauth_refresh_token"]}).Token()
 			if err != nil {
 				fmt.Fprintln(os.Stderr, "error during OAuth token refresh", err)
 			}
@@ -268,9 +269,9 @@ func main() {
 		if token == nil {
 			// Generate new token (opens browser, may require user input)
 			if device {
-				token, err = getDeviceToken(c)
+				token, err = getDeviceToken(ctx, c)
 			} else {
-				token, err = getToken(c)
+				token, err = getToken(ctx, c)
 			}
 			if err != nil {
 				log.Fatalln(err)
@@ -356,7 +357,7 @@ var template string = `<!DOCTYPE html>
 </body>
 </html>`
 
-func getToken(c oauth2.Config) (*oauth2.Token, error) {
+func getToken(ctx context.Context, c oauth2.Config) (*oauth2.Token, error) {
 	state := oauth2.GenerateVerifier()
 	queries := make(chan url.Values)
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -425,11 +426,11 @@ func getToken(c oauth2.Config) (*oauth2.Token, error) {
 		return nil, fmt.Errorf("state mismatch")
 	}
 	code := query.Get("code")
-	return c.Exchange(context.Background(), code, oauth2.VerifierOption(verifier))
+	return c.Exchange(ctx, code, oauth2.VerifierOption(verifier))
 }
 
-func getDeviceToken(c oauth2.Config) (*oauth2.Token, error) {
-	deviceAuth, err := c.DeviceAuth(context.Background())
+func getDeviceToken(ctx context.Context, c oauth2.Config) (*oauth2.Token, error) {
+	deviceAuth, err := c.DeviceAuth(ctx)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -437,7 +438,7 @@ func getDeviceToken(c oauth2.Config) (*oauth2.Token, error) {
 		fmt.Fprintf(os.Stderr, "%+v\n", deviceAuth)
 	}
 	fmt.Fprintf(os.Stderr, "Please enter code %s at %s\n", deviceAuth.UserCode, deviceAuth.VerificationURI)
-	return c.DeviceAccessToken(context.Background(), deviceAuth)
+	return c.DeviceAccessToken(ctx, deviceAuth)
 }
 
 func replaceHost(e oauth2.Endpoint, host string) oauth2.Endpoint {
