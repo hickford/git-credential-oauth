@@ -100,13 +100,15 @@ Edit your [global git config](https://git-scm.com/docs/git-config#FILES) `~/.git
 
 ### Browserless systems
 
-On systems without a web browser, set the `-device` flag to authenticate on another device using [OAuth device flow](https://www.rfc-editor.org/rfc/rfc8628). Currently only GitHub supports this flow.
+On systems without a web browser, set the `-device` flag to authenticate on another device using [OAuth device flow](https://www.rfc-editor.org/rfc/rfc8628). 
 
 ```ini
 [credential]
 	helper = cache --timeout 7200	# two hours
 	helper = oauth -device
 ```
+
+Currently only GitHub supports this flow. See GitLab feature request [#332682](https://gitlab.com/gitlab-org/gitlab/-/issues/332682).
 
 ### Unconfiguration
 
