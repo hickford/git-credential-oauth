@@ -5,6 +5,10 @@ builds:
   - env:
       - CGO_ENABLED=0
 archives:
+  -
+    format_overrides:
+      - goos: windows
+        format: zip
 
 # modelines, feel free to remove those if you don't want/use them:
 # yaml-language-server: $schema=https://goreleaser.com/static/schema.json
