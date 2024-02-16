@@ -28,6 +28,8 @@ OAuth has multiple advantages over personal access tokens or SSH:
 
 ## Installation
 
+### All platforms
+
 **Download** binary from https://github.com/hickford/git-credential-oauth/releases.
 
 Then test that Git can find the application:
@@ -55,6 +57,12 @@ macOS users can install from [Homebrew](https://formulae.brew.sh/formula/git-cre
 macOS users can alternatively install via [MacPorts](https://ports.macports.org/port/git-credential-oauth/):
 
 	sudo port install git-credential-oauth
+
+### Windows
+
+Install with [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/):
+
+    winget install hickford.git-credential-oauth
 
 ### Go users
 
