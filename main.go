@@ -82,6 +82,10 @@ var configByHost = map[string]oauth2.Config{
 		Endpoint: replaceHost(endpoints.GitLab, "gitlab.alpinelinux.org"),
 		Scopes:   []string{"read_repository", "write_repository"}},
 	// https://gitea.com/user/settings/applications/oauth2/218
+	"invent.kde.org": {
+		ClientID: "36ee2eeb4f179b38db8f066fd4ca9751f4b003653a205fc1422f110ca60181f6",
+		Endpoint: replaceHost(endpoints.GitLab, "invent.kde.org"),
+		Scopes:   []string{"read_repository", "write_repository"}},
 	"gitea.com": {
 		ClientID: "e13f8ebc-398d-4091-9481-5a37a76b51f6",
 		Endpoint: oauth2.Endpoint{AuthURL: "https://gitea.com/login/oauth/authorize", TokenURL: "https://gitea.com/login/oauth/access_token"}},
