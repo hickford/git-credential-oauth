@@ -116,7 +116,7 @@ On systems without a web browser, set the `-device` flag to authenticate on anot
 	helper = oauth -device
 ```
 
-Currently only GitHub supports this flow. See GitLab feature request [#332682](https://gitlab.com/gitlab-org/gitlab/-/issues/332682).
+Currently only GitHub supports this flow. See GitLab feature request [#332682](https://gitlab.com/gitlab-org/gitlab/-/issues/332682) and Gitea feature request [#27309](https://github.com/go-gitea/gitea/issues/27309).
 
 ### Unconfiguration
 
