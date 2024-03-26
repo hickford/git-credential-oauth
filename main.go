@@ -303,11 +303,15 @@ func main() {
 		} else if pairs["username"] == "" {
 			username = "oauth2"
 		}
-		output := map[string]string{
-			"password": token.AccessToken,
-		}
-		if username != "" {
-			output["username"] = username
+		output := map[string]string{}
+		if strings.Contains(pairs["capability[]"], "authtype") && host == "bitbucket.org" {
+			output["authtype"] = "Bearer"
+			output["credential"] = token.AccessToken
+		} else {
+			output["password"] = token.AccessToken
+			if username != "" {
+				output["username"] = username
+			}
 		}
 		if !token.Expiry.IsZero() {
 			output["password_expiry_utc"] = fmt.Sprintf("%d", token.Expiry.UTC().Unix())
