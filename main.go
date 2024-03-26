@@ -149,6 +149,8 @@ func main() {
 	flag.BoolVar(&verbose, "verbose", false, "log debug information to stderr")
 	var device bool
 	flag.BoolVar(&device, "device", false, "instead of opening a web browser locally, print a code to enter on another device")
+	var bearer bool
+	flag.BoolVar(&bearer, "bearer", false, "generate authtype Bearer for supported hosts")
 	flag.Usage = func() {
 		printVersion()
 		fmt.Fprintln(os.Stderr, "usage: git credential-oauth [<options>] <action>")
@@ -303,11 +305,17 @@ func main() {
 		} else if pairs["username"] == "" {
 			username = "oauth2"
 		}
-		output := map[string]string{
-			"password": token.AccessToken,
-		}
-		if username != "" {
-			output["username"] = username
+		output := map[string]string{}
+		hostSupportsBearer := host == "bitbucket.org" || host == "codeberg.org" || host == "gitea.com" || looksLikeGitea || strings.HasSuffix(host, ".googlesource.com")
+		gitSupportsBearer := strings.Contains(pairs["capability[]"], "authtype")
+		if bearer && hostSupportsBearer && gitSupportsBearer {
+			output["authtype"] = "Bearer"
+			output["credential"] = token.AccessToken
+		} else {
+			output["password"] = token.AccessToken
+			if username != "" {
+				output["username"] = username
+			}
 		}
 		if !token.Expiry.IsZero() {
 			output["password_expiry_utc"] = fmt.Sprintf("%d", token.Expiry.UTC().Unix())
