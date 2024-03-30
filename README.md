@@ -40,7 +40,7 @@ If you have problems, make sure that the binary is [located in the path](https:/
 
 ### Linux
 
-[Several Linux distributions](https://repology.org/project/git-credential-oauth/versions) include a git-credential-oauth package including [Fedora](https://packages.fedoraproject.org/pkgs/git-credential-oauth/git-credential-oauth/), [Debian](https://tracker.debian.org/pkg/git-credential-oauth) and [Ubuntu](https://packages.ubuntu.com/noble/git-credential-oauth). Ubuntu users can also use PPA [hickford/git-credential-oauth](https://launchpad.net/~hickford/+archive/ubuntu/git-credential-oauth) to install the latest release. 
+[Several Linux distributions](https://repology.org/project/git-credential-oauth/versions) include a git-credential-oauth package including [Fedora](https://packages.fedoraproject.org/pkgs/git-credential-oauth/git-credential-oauth/), [Debian](https://tracker.debian.org/pkg/git-credential-oauth) and [Ubuntu](https://packages.ubuntu.com/noble/git-credential-oauth). Ubuntu users can also use PPA [hickford/git-credential-oauth](https://launchpad.net/~hickford/+archive/ubuntu/git-credential-oauth) to install the latest release. [Home-Manager](https://github.com/nix-community/home-manager) users can use [the `programs.git-credential-oauth` module](https://nix-community.github.io/home-manager/options.xhtml#opt-programs.git-credential-oauth.enable) to automatically install and configure the program.
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/git-credential-oauth.svg?exclude_unsupported=1&header=)](https://repology.org/project/git-credential-oauth/versions)
 
