@@ -308,6 +308,9 @@ func main() {
 		}
 		if username != "" {
 			output["username"] = username
+			if pairs["username"] != "" && pairs["username"] != username {
+				fmt.Fprintf(os.Stderr, "Username '%s' is incompatible with OAuth. This frustrates retrieval of stored OAuth credentials. Please remove username from remote URL and unset config key credential.username.\n.", pairs["username"])
+			}
 		}
 		if !token.Expiry.IsZero() {
 			output["password_expiry_utc"] = fmt.Sprintf("%d", token.Expiry.UTC().Unix())
