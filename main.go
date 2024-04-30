@@ -260,9 +260,12 @@ func main() {
 		if c.ClientID == "" || c.Endpoint.AuthURL == "" || c.Endpoint.TokenURL == "" {
 			if looksLikeGitLab {
 				fmt.Fprintf(os.Stderr, "It looks like you're authenticating to a GitLab instance! To configure git-credential-oauth for host %s, follow the instructions at https://github.com/hickford/git-credential-oauth/issues/18. You may need to register an OAuth application at https://%s/-/profile/applications\n", host, host)
-			}
-			if looksLikeGitHub {
+			} else if looksLikeGitHub {
 				fmt.Fprintf(os.Stderr, "It looks like you're authenticating to GitHub Enterprise Server. See issue https://github.com/hickford/git-credential-oauth/issues/39 and workaround https://github.com/hickford/git-credential-oauth/issues/39#issuecomment-1747514543.\n")
+			} else if c.ClientID != "" {
+				fmt.Fprintf(os.Stderr, "Missing OAuth configuration for host %s. Please set Git config keys credential.%s.oauthAuthURL and credential.%s.oauthTokenURL.", host, urll, urll)
+			} else if verbose {
+				fmt.Fprintf(os.Stderr, "Missing OAuth configuration for host %s. Please set Git config key credential.%s.oauthClientId.", host, urll)
 			}
 			return
 		}
