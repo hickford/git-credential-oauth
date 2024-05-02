@@ -341,7 +341,8 @@ func main() {
 			case "darwin":
 				storage = "osxkeychain"
 			default:
-				storage = "cache --timeout 7200"
+				// six hours
+				storage = "cache --timeout 21600"
 			}
 			commands = []*exec.Cmd{exec.Command(gitPath, "config", "--global", "--unset-all", "credential.helper"),
 				exec.Command(gitPath, "config", "--global", "--add", "credential.helper", storage),
