@@ -88,13 +88,13 @@ To configure together with [git-credential-cache](https://git-scm.com/docs/git-c
 
 ```sh
 git config --global --unset-all credential.helper
-git config --global --add credential.helper "cache --timeout 7200" # two hours
+git config --global --add credential.helper "cache --timeout 21600" # six hours
 git config --global --add credential.helper oauth
 ```
 
 You may choose a different storage helper such as `osxkeychain`, `wincred` or `libsecret`, but git-credential-oauth must be configured last. This ensures Git checks for *stored* credentials before generating *new* credentials.
 
-**Windows users** must use storage helper `wincred` because [git-credential-cache isn't available on Windows](https://github.com/git-for-windows/git/issues/3892).
+**Windows users** are recommended to use storage helper `wincred`.
 
 ### Manual config
 
@@ -102,7 +102,7 @@ Edit your [global git config](https://git-scm.com/docs/git-config#FILES) `~/.git
 
 ```ini
 [credential]
-	helper = cache --timeout 7200	# two hours
+	helper = cache --timeout 21600	# six hours
 	helper = oauth
 ```
 
@@ -112,7 +112,7 @@ On systems without a web browser, set the `-device` flag to authenticate on anot
 
 ```ini
 [credential]
-	helper = cache --timeout 7200	# two hours
+	helper = cache --timeout 21600	# six hours
 	helper = oauth -device
 ```
 
