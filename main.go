@@ -282,12 +282,17 @@ func main() {
 			}
 		}
 
+		var authURLSuffix string
+		if looksLikeGitHub && pairs["username"] != "" && pairs["username"] != "oauth2" {
+			authURLSuffix = fmt.Sprintf("&login=%s", pairs["username"])
+		}
+
 		if token == nil {
 			// Generate new token (opens browser, may require user input)
 			if device {
 				token, err = getDeviceToken(ctx, c)
 			} else {
-				token, err = getToken(ctx, c)
+				token, err = getToken(ctx, c, authURLSuffix)
 			}
 			if err != nil {
 				log.Fatalln(err)
@@ -377,7 +382,7 @@ var template string = `<!DOCTYPE html>
 </body>
 </html>`
 
-func getToken(ctx context.Context, c oauth2.Config) (*oauth2.Token, error) {
+func getToken(ctx context.Context, c oauth2.Config, authURLSuffix string) (*oauth2.Token, error) {
 	state := oauth2.GenerateVerifier()
 	queries := make(chan url.Values)
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -420,6 +425,7 @@ func getToken(ctx context.Context, c oauth2.Config) (*oauth2.Token, error) {
 	defer server.Close()
 	verifier := oauth2.GenerateVerifier()
 	authCodeURL := c.AuthCodeURL(state, oauth2.S256ChallengeOption(verifier))
+	authCodeURL += authURLSuffix
 	fmt.Fprintf(os.Stderr, "Please complete authentication in your browser...\n%s\n", authCodeURL)
 	var open string
 	switch runtime.GOOS {
