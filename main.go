@@ -284,6 +284,7 @@ func main() {
 
 		var authURLSuffix string
 		if looksLikeGitHub && pairs["username"] != "" && pairs["username"] != "oauth2" {
+			// https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#1-request-a-users-github-identity
 			authURLSuffix = fmt.Sprintf("&login=%s", pairs["username"])
 		}
 
