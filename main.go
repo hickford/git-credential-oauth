@@ -429,17 +429,20 @@ func getToken(ctx context.Context, c oauth2.Config, authURLSuffix string) (*oaut
 	authCodeURL += authURLSuffix
 	fmt.Fprintf(os.Stderr, "Please complete authentication in your browser...\n%s\n", authCodeURL)
 	var open string
+	var p []string
 	switch runtime.GOOS {
 	case "windows":
-		open = "start"
+		open = "rundll32"
+		p = append(p, "url.dll,FileProtocolHandler")
 	case "darwin":
 		open = "open"
 	default:
 		open = "xdg-open"
 	}
+	p = append(p, authCodeURL)
 	// TODO: wait for server to start before opening browser
 	if _, err := exec.LookPath(open); err == nil {
-		err = exec.Command(open, authCodeURL).Run()
+		err = exec.Command(open, p...).Run()
 		if err != nil {
 			return nil, err
 		}
