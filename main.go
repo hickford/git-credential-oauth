@@ -252,6 +252,13 @@ func main() {
 					log.Fatalln(err)
 				}
 			}
+			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthDeviceAuthURL", urll).Output()
+			if err == nil {
+				c.Endpoint.DeviceAuthURL, err = urlResolveReference(urll, strings.TrimSpace(string(bytes)))
+				if err != nil {
+					log.Fatalln(err)
+				}
+			}
 			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthRedirectURL", urll).Output()
 			if err == nil {
 				c.RedirectURL = strings.TrimSpace(string(bytes))
