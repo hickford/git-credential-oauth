@@ -116,7 +116,7 @@ On systems without a web browser, set the `-device` flag to authenticate on anot
 	helper = oauth -device
 ```
 
-Currently only GitHub supports this flow. See GitLab feature request [#332682](https://gitlab.com/gitlab-org/gitlab/-/issues/332682) and Gitea feature request [#27309](https://github.com/go-gitea/gitea/issues/27309).
+Currently only GitHub and [GitLab](https://docs.gitlab.com/ee/api/oauth2.html#device-authorization-grant-flow) support this flow. See Gitea feature request [#27309](https://github.com/go-gitea/gitea/issues/27309).
 
 ### Unconfiguration
 
@@ -140,6 +140,7 @@ git config --global credential.https://gitlab.example.com.oauthClientId <CLIENTI
 git config --global credential.https://gitlab.example.com.oauthScopes read_repository write_repository
 git config --global credential.https://gitlab.example.com.oauthAuthURL /oauth/authorize
 git config --global credential.https://gitlab.example.com.oauthTokenURL /oauth/token
+git config --global credential.https://gitlab.example.com.oauthDeviceAuthURL /oauth/token
 ```
 
 Would you like to see universal GitLab support? *Vote for [GitLab issue #374172](https://gitlab.com/gitlab-org/gitlab/-/issues/374172).
