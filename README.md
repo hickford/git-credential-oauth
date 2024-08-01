@@ -140,7 +140,7 @@ git config --global credential.https://gitlab.example.com.oauthClientId <CLIENTI
 git config --global credential.https://gitlab.example.com.oauthScopes read_repository write_repository
 git config --global credential.https://gitlab.example.com.oauthAuthURL /oauth/authorize
 git config --global credential.https://gitlab.example.com.oauthTokenURL /oauth/token
-git config --global credential.https://gitlab.example.com.oauthDeviceAuthURL /oauth/token
+git config --global credential.https://gitlab.example.com.oauthDeviceAuthURL /oauth/authorize_device
 ```
 
 Would you like to see universal GitLab support? *Vote for [GitLab issue #374172](https://gitlab.com/gitlab-org/gitlab/-/issues/374172).
