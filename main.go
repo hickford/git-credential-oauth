@@ -202,8 +202,9 @@ func main() {
 
 			// assumes GitLab installed at domain root
 			c.Endpoint = oauth2.Endpoint{
-				AuthURL:  fmt.Sprintf("%s/oauth/authorize", urll),
-				TokenURL: fmt.Sprintf("%s/oauth/token", urll),
+				AuthURL:       fmt.Sprintf("%s/oauth/authorize", urll),
+				TokenURL:      fmt.Sprintf("%s/oauth/token", urll),
+				DeviceAuthURL: fmt.Sprintf("%s/oauth/authorize_device", urll),
 			}
 			c.Scopes = configByHost["gitlab.com"].Scopes
 		}
