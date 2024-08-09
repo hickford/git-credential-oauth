@@ -143,7 +143,7 @@ git config --global credential.https://gitlab.example.com.oauthTokenURL /oauth/t
 git config --global credential.https://gitlab.example.com.oauthDeviceAuthURL /oauth/authorize_device
 ```
 
-Would you like to see universal GitLab support? *Vote for [GitLab issue #374172](https://gitlab.com/gitlab-org/gitlab/-/issues/374172).
+Would you like to see universal GitLab support? Vote for [GitLab issue #374172](https://gitlab.com/gitlab-org/gitlab/-/issues/374172).
 
 ## Philosophy
 
