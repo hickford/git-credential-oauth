@@ -109,7 +109,8 @@ var configByHost = map[string]oauth2.Config{
 var (
 	verbose bool
 	// populated by GoReleaser https://goreleaser.com/cookbooks/using-main.version
-	version = "dev"
+	version      = "dev"
+	qrencodeType string
 )
 
 func getVersion() string {
@@ -149,6 +150,7 @@ func main() {
 	flag.BoolVar(&verbose, "verbose", false, "log debug information to stderr")
 	var device bool
 	flag.BoolVar(&device, "device", false, "instead of opening a web browser locally, print a code to enter on another device")
+	flag.StringVar(&qrencodeType, "qr", "", "qrencode type")
 	flag.Usage = func() {
 		printVersion()
 		fmt.Fprintln(os.Stderr, "usage: git credential-oauth [<options>] <action>")
@@ -474,6 +476,19 @@ func getDeviceToken(ctx context.Context, c oauth2.Config) (*oauth2.Token, error)
 	}
 	if verbose {
 		fmt.Fprintf(os.Stderr, "%+v\n", deviceAuth)
+	}
+	if deviceAuth.VerificationURIComplete != "" && qrencodeType != "" {
+		qrencodePath, err := exec.LookPath("qrencode")
+		if err == nil {
+			cmd := exec.Command(qrencodePath, "-t", qrencodeType, deviceAuth.VerificationURIComplete)
+			bytes, err := cmd.CombinedOutput()
+			if err != nil {
+				log.Fatalln(err)
+			}
+			if err == nil {
+				fmt.Fprintf(os.Stderr, "%s\n", bytes)
+			}
+		}
 	}
 	fmt.Fprintf(os.Stderr, "Please enter code %s at %s\n", deviceAuth.UserCode, deviceAuth.VerificationURI)
 	return c.DeviceAccessToken(ctx, deviceAuth)
