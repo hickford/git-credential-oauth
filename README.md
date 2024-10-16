@@ -195,6 +195,13 @@ The maintainer personally uses GCM on Windows and git-credential-oauth on Linux.
 4. Check Git remote URL `git remote -v` does not contain a username.
 5. Test git-credential-oauth in verbose mode for *your specific host* `printf host=example.com\nprotocol=https\n | git-credential-oauth -verbose get`. Set any config keys suggested.
 
+### GitHub organizations
+
+Some GitHub organizations require users to manually request approval for the app:
+
+1. https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-your-membership-in-organizations/requesting-organization-approval-for-oauth-apps
+2. https://docs.github.com/en/organizations/managing-oauth-access-to-your-organizations-data/approving-oauth-apps-for-your-organization
+
 ## Development
 
 Install locally with `go install .`.
