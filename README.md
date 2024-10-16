@@ -19,10 +19,10 @@ OAuth has multiple advantages over personal access tokens or SSH:
 
 | Advantage                                  | OAuth | Personal access token | SSH |
 |--------------------------------------------|-------|-----------------------|-----|
-| Clone public repo without setup            | ✓     | ✓                     | 🗙   |
-| Authenticate to popular hosts without setup| ✓     | 🗙                     | 🗙   |
-| Server authenticity verified automatically | ✓     | ✓                     | 🗙   |
-| Protections against token theft[^1] | [✓](https://www.ietf.org/archive/id/draft-ietf-oauth-security-topics-22.html#name-refresh-token-protection)     | 🗙                     | *only if key has passphrase*   |
+| Clone public repo without setup            | ✔     | ✔                     | 🗙   |
+| Authenticate to popular hosts without setup| ✔     | 🗙                     | 🗙   |
+| Server authenticity verified automatically | ✔     | ✔                     | 🗙   |
+| Protections against token theft[^1] | [✔](https://www.ietf.org/archive/id/draft-ietf-oauth-security-topics-22.html#name-refresh-token-protection)     | 🗙                     | *only if key has passphrase*   |
 
 [^1]: Scenario: an old disk backup is leaked.
 
@@ -157,17 +157,17 @@ Would you like to see universal GitLab support? Vote for [GitLab issue #374172](
 
 |                | Git Credential Manager | git-credential-oauth |
 |----------------|------------------------|----------------------|
-| Cross platform | ✓                      | ✓                     |
-| Linux arm64 support            | 🗙               | ✓                            |
-| Packaged in Linux distributions               | 🗙            | ✓ ([many](https://repology.org/project/git-credential-oauth/versions)) |
+| Cross platform | ✔                      | ✔                     |
+| Linux arm64 support            | 🗙               | ✔                            |
+| Packaged in Linux distributions               | 🗙            | ✔ ([many](https://repology.org/project/git-credential-oauth/versions)) |
 | Installation size (Linux) | [82 MB](https://github.com/git-ecosystem/git-credential-manager/issues/1212#issuecomment-1530304873) | 5 MB                 |
 | Installation size (Windows) | 4 MB | 5 MB                 |
-| Ships with Git for Windows | ✓ | 🗙 |
+| Ships with Git for Windows | ✔ | 🗙 |
 | Credential storage | In built | Used together with any storage helper |
 | Development    | .NET                   | Go                   |
 | Lines of code | 40,000 | 400 |
 | Minimum HTTP requests | 1 | 0 |
-| Authentication to Azure DevOps | ✓ | 🗙 (try [git-credential-azure](https://github.com/hickford/git-credential-azure)) |
+| Authentication to Azure DevOps | ✔ | 🗙 (try [git-credential-azure](https://github.com/hickford/git-credential-azure)) |
 | Hosts with default config | 4 | 12 |
 
 The maintainer personally uses GCM on Windows and git-credential-oauth on Linux.
