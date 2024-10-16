@@ -31,6 +31,7 @@ OAuth has multiple advantages over personal access tokens or SSH:
 | Host                | Preconfigured | OAuth             | OAuth device flow |
 |---------------------|---------------|-------------------|-------------------|
 | github.com          | ✔             | ✔                 | ✔                 |
+| GitHub Enterprise Server | 🗙        | ✔                 | ✔                 |
 | gitlab.com          | ✔             | ✔                 | ✔                 |
 | gitlab.example.com  | 🗙             | ✔                 | ✔                 |
 | gitea.example.com   | ✔             | ✔                 | 🗙                 |
@@ -185,6 +186,14 @@ Would you like to see universal GitLab support? Vote for [GitLab issue #374172](
 | Hosts with default config | 4 | 12 |
 
 The maintainer personally uses GCM on Windows and git-credential-oauth on Linux.
+
+## Troubleshooting
+
+1. List Git credential helpers `git config --get-all credential.helper`. At least one storage helper should preceed `oauth`.
+2. Check Git version `git --version` is at least 2.45. Older Git versions have [limited support for storing OAuth refresh tokens](https://github.com/hickford/git-credential-oauth/issues/20).
+3. Check git-credential-oauth version is [recent](https://github.com/hickford/git-credential-oauth/releases/).
+4. Check Git remote URL `git remote -v` does not contain a username.
+5. Test git-credential-oauth in verbose mode for *your specific host* `printf host=example.com\nprotocol=https\n | git-credential-oauth -verbose get`. Set any config keys suggested.
 
 ## Development
 
