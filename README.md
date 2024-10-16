@@ -33,11 +33,11 @@ OAuth has multiple advantages over personal access tokens or SSH:
 | github.com          | ✔             | ✔                 | ✔                 |
 | GitHub Enterprise Server | 🗙        | ✔                 | ✔                 |
 | gitlab.com          | ✔             | ✔                 | ✔                 |
-| gitlab.example.com  | 🗙             | ✔                 | ✔                 |
-| gitea.example.com   | ✔             | ✔                 | 🗙                 |
+| gitlab.example.com  | [🗙](https://gitlab.com/gitlab-org/gitlab/-/issues/374172)            | ✔                 | ✔                 |
+| gitea.example.com   | ✔             | ✔                 | [🗙](https://github.com/go-gitea/gitea/issues/27309)                 |
 | forgejo.example.com | ✔             | ✔                 | 🗙                 |
 | bitbucket.org       | ✔             | ✔                 | 🗙                 |
-| googlesource.com    | ✔             | ✔                 | 🗙                 |
+| googlesource.com    | ✔             | ✔                 | [🗙](https://github.com/hickford/git-credential-oauth/issues/38) |
 
 OAuth device flow is useful for browserless systems.
 
