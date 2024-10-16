@@ -26,6 +26,20 @@ OAuth has multiple advantages over personal access tokens or SSH:
 
 [^1]: Scenario: an old disk backup is leaked.
 
+## Features by host
+
+| Host                | Preconfigured | OAuth             | OAuth device flow |
+|---------------------|---------------|-------------------|-------------------|
+| github.com          | ✔             | ✔                 | ✔                 |
+| gitlab.com          | ✔             | ✔                 | ✔                 |
+| gitlab.example.com  | 🗙             | ✔                 | ✔                 |
+| gitea.example.com   | ✔             | ✔                 | 🗙                 |
+| forgejo.example.com | ✔             | ✔                 | 🗙                 |
+| bitbucket.org       | ✔             | ✔                 | 🗙                 |
+| googlesource.com    | ✔             | ✔                 | 🗙                 |
+
+OAuth device flow is useful for browserless systems.
+
 ## Installation
 
 ### All platforms
