@@ -452,7 +452,7 @@ func getToken(ctx context.Context, c oauth2.Config, authURLSuffix string) (*oaut
 	if _, err := exec.LookPath(open); err == nil {
 		err = exec.Command(open, p...).Run()
 		if err != nil {
-			return nil, err
+			fmt.Fprintf(os.Stderr, "Unable to open browser using '%s': %s\n", open, err)
 		}
 	}
 	query := <-queries
