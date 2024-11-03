@@ -310,23 +310,16 @@ func main() {
 		if verbose {
 			fmt.Fprintln(os.Stderr, "token:", token)
 		}
-		var username string
-		if host == "bitbucket.org" {
-			// https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/#Cloning-a-repository-with-an-access-token
-			username = "x-token-auth"
-		} else if looksLikeGitLab {
-			// https://docs.gitlab.com/ee/api/oauth2.html#access-git-over-https-with-access-token
-			username = "oauth2"
-		} else if pairs["username"] == "" {
-			username = "oauth2"
-		}
 		output := map[string]string{
 			"password": token.AccessToken,
 		}
-		if username != "" {
-			output["username"] = username
-			if pairs["username"] != "" && pairs["username"] != username {
-				fmt.Fprintf(os.Stderr, "Username '%s' is incompatible with OAuth. This frustrates retrieval of stored OAuth credentials. Please remove username from remote URL and unset config key credential.username.\n.", pairs["username"])
+		if pairs["username"] == "" {
+			if host == "bitbucket.org" {
+				// https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/#Cloning-a-repository-with-an-access-token
+				output["username"] = "x-token-auth"
+			} else {
+				// https://docs.gitlab.com/ee/api/oauth2.html#access-git-over-https-with-access-token
+				output["username"] = "oauth2"
 			}
 		}
 		if !token.Expiry.IsZero() {
