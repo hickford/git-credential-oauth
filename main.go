@@ -81,6 +81,11 @@ var configByHost = map[string]oauth2.Config{
 		ClientID: "6e1363d5730bd1068bc908d6eda9f4f7e72352147dbe15f441a2f9e2ce5aebee",
 		Endpoint: replaceHost(endpoints.GitLab, "gitlab.alpinelinux.org"),
 		Scopes:   []string{"read_repository", "write_repository"}},
+	// https://hifis.net/doc/software/gitlab/getting-started/#use-git-credential-oauth
+	"codebase.helmholtz.cloud": {
+		ClientID: "e79ac88d46e4f3f79a494166fabb0310e7879d8e4776f316fb57b3100eaec13a",
+		Endpoint: replaceHost(endpoints.GitLab, "codebase.helmholtz.cloud"),
+		Scopes:   []string{"read_repository", "write_repository"}},
 	// https://gitea.com/user/settings/applications/oauth2/218
 	"invent.kde.org": {
 		ClientID: "36ee2eeb4f179b38db8f066fd4ca9751f4b003653a205fc1422f110ca60181f6",
