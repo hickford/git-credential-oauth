@@ -16,5 +16,8 @@ func TestConfig(t *testing.T) {
 		if !strings.Contains(c.Endpoint.TokenURL, key) {
 			t.Errorf("bad token url for key %s: %s", key, c.Endpoint.TokenURL)
 		}
+		if c.Endpoint.DeviceAuthURL != "" && !strings.Contains(c.Endpoint.DeviceAuthURL, key) {
+			t.Errorf("bad device auth url for key %s: %s", key, c.Endpoint.DeviceAuthURL)
+		}
 	}
 }
