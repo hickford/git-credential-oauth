@@ -45,7 +45,7 @@ OAuth device flow is useful for browserless systems.
 
 ### All platforms
 
-**Download** binary from https://github.com/hickford/git-credential-oauth/releases.
+**Download** binary from <https://github.com/hickford/git-credential-oauth/releases>.
 
 Then test that Git can find the application:
 
@@ -199,8 +199,8 @@ The maintainer personally uses GCM on Windows and git-credential-oauth on Linux.
 
 Some GitHub organizations require users to manually request approval for the app:
 
-1. https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-your-membership-in-organizations/requesting-organization-approval-for-oauth-apps
-2. https://docs.github.com/en/organizations/managing-oauth-access-to-your-organizations-data/approving-oauth-apps-for-your-organization
+1. <https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-your-membership-in-organizations/requesting-organization-approval-for-oauth-apps>
+2. <https://docs.github.com/en/organizations/managing-oauth-access-to-your-organizations-data/approving-oauth-apps-for-your-organization>
 
 ## Development
 
