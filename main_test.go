@@ -21,3 +21,15 @@ func TestConfig(t *testing.T) {
 		}
 	}
 }
+
+func FuzzParse(f *testing.F) {
+	f.Add("key=value")
+	f.Add("key=")
+	f.Add("==")
+	f.Add("\n\n\n")
+	f.Add("key=value=long")
+	f.Add("wwwauth[]=value1\nwwwauth[]=value2")
+	f.Fuzz(func(_ *testing.T, s string) {
+		parse(s)
+	})
+}
