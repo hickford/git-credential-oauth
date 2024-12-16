@@ -154,6 +154,8 @@ func main() {
 	flag.BoolVar(&verbose, "verbose", false, "log debug information to stderr")
 	var device bool
 	flag.BoolVar(&device, "device", false, "instead of opening a web browser locally, print a code to enter on another device")
+	var bearer bool
+	flag.BoolVar(&bearer, "bearer", false, "Prefer Bearer authentication for supported hosts")
 	flag.Usage = func() {
 		printVersion()
 		fmt.Fprintln(os.Stderr, "usage: git credential-oauth [<options>] <action>")
@@ -315,16 +317,25 @@ func main() {
 		if verbose {
 			fmt.Fprintln(os.Stderr, "token:", token)
 		}
-		output := map[string]string{
-			"password": token.AccessToken,
+		output := map[string]string{}
+		hostSupportsBearer := host == "bitbucket.org" || host == "codeberg.org" || host == "gitea.com" || looksLikeGitea || strings.HasSuffix(host, ".googlesource.com")
+		authtypeCapable := strings.Contains(pairs["capability[]"], "authtype")
+		if authtypeCapable {
+			fmt.Println("capability[]=authtype")
 		}
-		if pairs["username"] == "" {
-			if host == "bitbucket.org" {
-				// https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/#Cloning-a-repository-with-an-access-token
-				output["username"] = "x-token-auth"
-			} else {
-				// https://docs.gitlab.com/ee/api/oauth2.html#access-git-over-https-with-access-token
-				output["username"] = "oauth2"
+		if bearer && hostSupportsBearer && authtypeCapable {
+			output["authtype"] = "Bearer"
+			output["credential"] = token.AccessToken
+		} else {
+			output["password"] = token.AccessToken
+			if pairs["username"] == "" {
+				if host == "bitbucket.org" {
+					// https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/#Cloning-a-repository-with-an-access-token
+					output["username"] = "x-token-auth"
+				} else {
+					// https://docs.gitlab.com/ee/api/oauth2.html#access-git-over-https-with-access-token
+					output["username"] = "oauth2"
+				}
 			}
 		}
 		if !token.Expiry.IsZero() {
@@ -375,6 +386,10 @@ func main() {
 			}
 		}
 		fmt.Fprintf(os.Stderr, "%sd successfully\n", args[0])
+	case "capability":
+		// https://git-scm.com/docs/git-credential#CAPA-IOFMT
+		fmt.Println("version 0")
+		fmt.Println("capability authtype")
 	}
 }
 
