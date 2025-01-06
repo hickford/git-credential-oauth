@@ -317,12 +317,11 @@ func main() {
 		if verbose {
 			fmt.Fprintln(os.Stderr, "token:", token)
 		}
+		// "A capability[] directive must precede any value depending on it and these directives should be the first item announced in the protocol." https://git-scm.com/docs/git-credential
+		fmt.Println("capability[]=authtype")
 		output := map[string]string{}
 		hostSupportsBearer := host == "bitbucket.org" || host == "codeberg.org" || host == "gitea.com" || looksLikeGitea || strings.HasSuffix(host, ".googlesource.com")
 		authtypeCapable := strings.Contains(pairs["capability[]"], "authtype")
-		if authtypeCapable {
-			fmt.Println("capability[]=authtype")
-		}
 		if bearer && hostSupportsBearer && authtypeCapable {
 			output["authtype"] = "Bearer"
 			output["credential"] = token.AccessToken
