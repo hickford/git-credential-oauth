@@ -125,10 +125,8 @@ func getVersion() string {
 	return version
 }
 
-func printVersion() {
-	if verbose {
-		fmt.Fprintf(os.Stderr, "git-credential-oauth %s\n", getVersion())
-	}
+func printVersion(w io.Writer) {
+	fmt.Fprintf(w, "git-credential-oauth %s\n", getVersion())
 }
 
 func parse(input string) map[string]string {
@@ -157,7 +155,9 @@ func main() {
 	var bearer bool
 	flag.BoolVar(&bearer, "bearer", false, "Prefer Bearer authentication for supported hosts")
 	flag.Usage = func() {
-		printVersion()
+		if verbose {
+			printVersion(os.Stderr)
+		}
 		fmt.Fprintln(os.Stderr, "usage: git credential-oauth [<options>] <action>")
 		fmt.Fprintln(os.Stderr, "")
 		fmt.Fprintln(os.Stderr, "Options:")
@@ -167,6 +167,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "  get            Generate credential [called by Git]")
 		fmt.Fprintln(os.Stderr, "  configure      Configure as Git credential helper")
 		fmt.Fprintln(os.Stderr, "  unconfigure    Unconfigure as Git credential helper")
+		fmt.Fprintln(os.Stderr, "  version        Print version")
 		fmt.Fprintln(os.Stderr, "")
 		fmt.Fprintln(os.Stderr, "See also https://github.com/hickford/git-credential-oauth")
 	}
@@ -184,7 +185,9 @@ func main() {
 	}
 	switch args[0] {
 	case "get":
-		printVersion()
+		if verbose {
+			printVersion(os.Stderr)
+		}
 		input, err := io.ReadAll(os.Stdin)
 		if err != nil {
 			log.Fatalln(err)
@@ -389,6 +392,8 @@ func main() {
 		// https://git-scm.com/docs/git-credential#CAPA-IOFMT
 		fmt.Println("version 0")
 		fmt.Println("capability authtype")
+	case "version":
+		printVersion(os.Stdout)
 	}
 }
 
