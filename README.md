@@ -141,14 +141,19 @@ Edit `~/.gitconfig` manually, or run:
 
 ## Custom hosts
 
+### GitLab
+
+> [!TIP]
+> Would you like universal GitLab support without configuration? Vote for [GitLab issue #374172](https://gitlab.com/gitlab-org/gitlab/-/issues/374172)!
+
 To use with a custom host, eg. `gitlab.example.com`:
 
-1. Register an OAuth application on the host. The [GitLab instructions](https://docs.gitlab.com/ee/integration/oauth_provider.html#user-owned-applications) are typical.
+1. [Register an OAuth application](https://docs.gitlab.com/ee/integration/oauth_provider.html#user-owned-applications) on the host.
 	* Specify name `git-credential-oauth`
 	* Specify redirect URI `http://127.0.0.1`.
 	* Select scopes for read and write Git operations.
-2. Adjust the config commands below with the generated client id and *space-separated* scopes.
-3. Share the config commands with colleagues so they can skip the registration step.
+2. Adjust the config command below with the generated client id.
+3. Share the config command with colleagues so they can skip the registration step.
 
 ```sh
 git config --global credential.https://gitlab.example.com.oauthClientId <CLIENTID>
@@ -158,7 +163,23 @@ git config --global credential.https://gitlab.example.com.oauthTokenURL /oauth/t
 git config --global credential.https://gitlab.example.com.oauthDeviceAuthURL /oauth/authorize_device
 ```
 
-Would you like to see universal GitLab support? Vote for [GitLab issue #374172](https://gitlab.com/gitlab-org/gitlab/-/issues/374172).
+### Other
+
+1. Register an OAuth application.
+	* Specify name `git-credential-oauth`
+	* Specify redirect URI `http://127.0.0.1`.
+	* Select scopes for read and write Git operations.
+2. Consult the documentation for OAuth scopes and URLs.
+2. Adjust the config commands below with the generated client id, OAuth scopes and relative URLs.
+3. Share the config commands with colleagues so they can skip the registration step.
+
+```sh
+git config --global credential.https://code.example.com.oauthClientId <CLIENTID>
+git config --global credential.https://code.example.com.oauthScopes "read_repository write_repository"
+git config --global credential.https://code.example.com.oauthAuthURL /oauth/authorize>
+git config --global credential.https://code.example.com.oauthTokenURL /oauth/token
+git config --global credential.https://code.example.com.oauthDeviceAuthURL /oauth/authorize_device
+```
 
 ## Philosophy
 
@@ -180,10 +201,10 @@ Would you like to see universal GitLab support? Vote for [GitLab issue #374172](
 | Ships with Git for Windows | ✔ | 🗙 |
 | Credential storage | In built | Used together with any storage helper |
 | Development    | .NET                   | Go                   |
-| Lines of code | 40,000 | 400 |
+| Lines of code | 40,000 | 500 |
 | Minimum HTTP requests | 1 | 0 |
 | Authentication to Azure DevOps | ✔ | 🗙 (try [git-credential-azure](https://github.com/hickford/git-credential-azure)) |
-| Hosts with default config | 4 | 12 |
+| Hosts with default config | 4 | 14 |
 
 The maintainer personally uses GCM on Windows and git-credential-oauth on Linux.
 
