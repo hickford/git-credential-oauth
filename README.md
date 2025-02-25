@@ -149,9 +149,13 @@ Edit `~/.gitconfig` manually, or run:
 To use with a custom host, eg. `gitlab.example.com`:
 
 1. [Register an OAuth application](https://docs.gitlab.com/ee/integration/oauth_provider.html#user-owned-applications) on the host.
-	* Specify name `git-credential-oauth`
+    * Browse to eg. https://gitlab.example.com/-/profile/applications.
+	* "Add new application"
+	* Specify name `git-credential-oauth`.
 	* Specify redirect URI `http://127.0.0.1`.
-	* Select scopes for read and write Git operations.
+	* Uncheck "confidential"
+	* Select scopes "read_repository" and "write_repository".
+	* "Save application".
 2. Adjust the config command below with the generated client id.
 3. Share the config command with colleagues so they can skip the registration step.
 
