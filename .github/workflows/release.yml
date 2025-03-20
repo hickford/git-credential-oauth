@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-go@v2
         with:
-          go-version: 1.20.x
+          go-version: 1.24.x
           cache: true
       - run: go mod tidy
       - uses: goreleaser/goreleaser-action@v2
