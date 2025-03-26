@@ -1,3 +1,4 @@
+version: 2
 before:
   hooks:
     - go mod tidy
@@ -8,7 +9,7 @@ archives:
   -
     format_overrides:
       - goos: windows
-        format: zip
+        formats: zip
 
 # modelines, feel free to remove those if you don't want/use them:
 # yaml-language-server: $schema=https://goreleaser.com/static/schema.json
