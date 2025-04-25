@@ -180,7 +180,7 @@ git config --global credential.https://gitlab.example.com.oauthDeviceAuthURL /oa
 ```sh
 git config --global credential.https://code.example.com.oauthClientId <CLIENTID>
 git config --global credential.https://code.example.com.oauthScopes "read_repository write_repository"
-git config --global credential.https://code.example.com.oauthAuthURL /oauth/authorize>
+git config --global credential.https://code.example.com.oauthAuthURL /oauth/authorize
 git config --global credential.https://code.example.com.oauthTokenURL /oauth/token
 git config --global credential.https://code.example.com.oauthDeviceAuthURL /oauth/authorize_device
 ```
