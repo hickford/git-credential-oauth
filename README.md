@@ -35,7 +35,7 @@ OAuth has multiple advantages over personal access tokens or SSH:
 | gitlab.com          | ✔             | ✔                 | ✔                 |
 | gitlab.example.com  | [🗙](https://gitlab.com/gitlab-org/gitlab/-/issues/374172)            | ✔                 | ✔                 |
 | gitea.example.com   | ✔             | ✔                 | [🗙](https://github.com/go-gitea/gitea/issues/27309)                 |
-| forgejo.example.com | ✔             | ✔                 | 🗙                 |
+| forgejo.example.com | ✔             | ✔                 | [🗙](https://codeberg.org/forgejo/forgejo/issues/4830) |
 | bitbucket.org       | ✔             | ✔                 | 🗙                 |
 | googlesource.com    | ✔             | ✔                 | [🗙](https://github.com/hickford/git-credential-oauth/issues/38) |
 
