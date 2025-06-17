@@ -1,10 +1,10 @@
 module github.com/hickford/git-credential-oauth
 
-go 1.24.2
+go 1.24.4
 
 require (
 	github.com/stretchr/testify v1.10.0
-	golang.org/x/oauth2 v0.29.0
+	golang.org/x/oauth2 v0.30.0
 )
 
 require (
