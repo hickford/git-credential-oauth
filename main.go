@@ -31,6 +31,7 @@ import (
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/endpoints"
+	"golang.org/x/term"
 )
 
 // configByHost lists default config for several public hosts.
@@ -149,9 +150,15 @@ func parse(input string) map[string]string {
 
 func main() {
 	ctx := context.Background()
-	flag.BoolVar(&verbose, "verbose", false, "log debug information to stderr")
+	flag.BoolVar(&verbose, "verbose", false, "Log debug information to standard error stream")
 	var device bool
-	flag.BoolVar(&device, "device", false, "instead of opening a web browser locally, print a code to enter on another device")
+	flag.BoolVar(&device, "device", false, "Use OAuth device authorization: instead of opening a local web browser, print a code to enter on another device")
+	var noDevice bool
+	flag.BoolVar(&noDevice, "no-device", false, "Never use device authorization, regardless of environment")
+	var browser bool
+	flag.BoolVar(&browser, "browser", false, "Open web browser")
+	var noBrowser bool
+	flag.BoolVar(&noBrowser, "no-browser", false, "Never use web browser, regardless of environment")
 	var bearer bool
 	flag.BoolVar(&bearer, "bearer", false, "Prefer Bearer authentication for supported hosts")
 	flag.Usage = func() {
@@ -307,11 +314,14 @@ func main() {
 		}
 
 		if token == nil {
-			// Generate new token (opens browser, may require user input)
-			if device {
+			// Generate new token (requires user input)
+			if browser || (!noBrowser && isWebBrowserAvailable()) {
+				token, err = getToken(ctx, c, authURLSuffix)
+			} else if device || (!noDevice && isTTY()) {
 				token, err = getDeviceToken(ctx, c)
 			} else {
-				token, err = getToken(ctx, c, authURLSuffix)
+				fmt.Fprintln(os.Stderr, "git-credential-oauth: No web browser or terminal available. Try the -browser or -device options.")
+				return
 			}
 			if err != nil {
 				log.Fatalln(err)
@@ -369,9 +379,11 @@ func main() {
 				// six hours
 				storage = "cache --timeout 21600"
 			}
-			commands = []*exec.Cmd{exec.Command(gitPath, "config", "--global", "--unset-all", "credential.helper"),
+			commands = []*exec.Cmd{
+				exec.Command(gitPath, "config", "--global", "--unset-all", "credential.helper"),
 				exec.Command(gitPath, "config", "--global", "--add", "credential.helper", storage),
-				exec.Command(gitPath, "config", "--global", "--add", "credential.helper", "oauth")}
+				exec.Command(gitPath, "config", "--global", "--add", "credential.helper", "oauth"),
+			}
 		} else if args[0] == "unconfigure" {
 			commands = []*exec.Cmd{exec.Command(gitPath, "config", "--global", "--unset-all", "credential.helper", "oauth")}
 		}
@@ -525,4 +537,17 @@ func urlResolveReference(base, ref string) (string, error) {
 		return "", err
 	}
 	return base1.ResolveReference(ref1).String(), nil
+}
+
+func isWebBrowserAvailable() bool {
+	switch runtime.GOOS {
+	case "windows":
+		return os.Getenv("SSH_TTY") == ""
+	default:
+		return os.Getenv("XDG_SESSION_TYPE") != "tty"
+	}
+}
+
+func isTTY() bool {
+	return term.IsTerminal(int(os.Stderr.Fd()))
 }
