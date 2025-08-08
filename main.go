@@ -15,15 +15,10 @@ package main
 
 import (
 	"context"
-	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/hickford/git-credential-oauth/internal/devops"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/authhandler"
-	"golang.org/x/oauth2/endpoints"
 	"io"
 	"log"
 	"math/rand"
@@ -35,6 +30,11 @@ import (
 	"runtime"
 	"runtime/debug"
 	"strings"
+
+	"github.com/hickford/git-credential-oauth/internal/devops"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/authhandler"
+	"golang.org/x/oauth2/endpoints"
 )
 
 // configByHost lists default config for several public hosts.
@@ -497,12 +497,9 @@ func replaceHost(e oauth2.Endpoint, host string) oauth2.Endpoint {
 }
 
 func generatePKCEParams() *authhandler.PKCEParams {
-	verifier := randomString(32)
-	sha := sha256.Sum256([]byte(verifier))
-	challenge := base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(sha[:])
-
+	verifier := oauth2.GenerateVerifier()
 	return &authhandler.PKCEParams{
-		Challenge:       challenge,
+		Challenge:       oauth2.S256ChallengeFromVerifier(verifier),
 		ChallengeMethod: "S256",
 		Verifier:        verifier,
 	}

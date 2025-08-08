@@ -1,6 +1,6 @@
 module github.com/hickford/git-credential-oauth
 
-go 1.24.4
+go 1.24.6
 
 require (
 	github.com/stretchr/testify v1.10.0
