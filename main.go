@@ -236,10 +236,22 @@ func main() {
 		}
 		gitPath, err := exec.LookPath("git")
 		if err == nil {
-			cmd := exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthClientId", urll)
+			// Use oauthClientIdFile first. If it's not found, fall back to oauthClientId
+			cmd := exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthClientIdFile", urll)
 			bytes, err := cmd.Output()
 			if err == nil {
+				var oauthClientIdFile = strings.TrimSpace(string(bytes))
+				bytes, err := os.ReadFile(oauthClientIdFile)
+				if err != nil {
+					log.Fatalln(err)
+				}
 				c.ClientID = strings.TrimSpace(string(bytes))
+			} else {
+				cmd := exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthClientId", urll)
+				bytes, err := cmd.Output()
+				if err == nil {
+					c.ClientID = strings.TrimSpace(string(bytes))
+				}
 			}
 			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthClientSecret", urll).Output()
 			if err == nil {
