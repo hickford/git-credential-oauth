@@ -401,6 +401,7 @@ var template string = `<!DOCTYPE html>
 <html lang="en">
 <head>
 	<title>Git authentication</title>
+	<meta name="color-scheme" content="light dark">
 </head>
 <body>
 <p>Success. You may close this page and return to Git.</p>
