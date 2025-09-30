@@ -301,9 +301,15 @@ func main() {
 		}
 
 		var authURLSuffix string
-		if looksLikeGitHub && pairs["username"] != "" && pairs["username"] != "oauth2" {
-			// https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#1-request-a-users-github-identity
-			authURLSuffix = fmt.Sprintf("&login=%s", pairs["username"])
+		if pairs["username"] != "" && pairs["username"] != "oauth2" {
+			if looksLikeGitHub {
+				// https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#1-request-a-users-github-identity
+				authURLSuffix = fmt.Sprintf("&login=%s", pairs["username"])
+			}
+			if strings.HasSuffix(host, ".googlesource.com") {
+				// https://developers.google.com/identity/protocols/oauth2/web-server#creatingclient
+				authURLSuffix = fmt.Sprintf("&login_hint=%s", pairs["username"])
+			}
 		}
 
 		if token == nil {
