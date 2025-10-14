@@ -494,7 +494,7 @@ func getToken(ctx context.Context, c oauth2.Config, authURLSuffix string) (*oaut
 func getDeviceToken(ctx context.Context, c oauth2.Config) (*oauth2.Token, error) {
 	deviceAuth, err := c.DeviceAuth(ctx)
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 	if verbose {
 		fmt.Fprintf(os.Stderr, "%+v\n", deviceAuth)
