@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"strings"
 	"testing"
 )
@@ -19,6 +20,16 @@ func TestConfig(t *testing.T) {
 		if c.Endpoint.DeviceAuthURL != "" && !strings.Contains(c.Endpoint.DeviceAuthURL, key) {
 			t.Errorf("bad device auth url for key %s: %s", key, c.Endpoint.DeviceAuthURL)
 		}
+	}
+}
+
+func TestQR(t *testing.T) {
+	msg := os.Getenv("QR_MSG")
+	if msg == "" {
+		t.Skip("no QR_MSG set, skipping")
+	}
+	if err := writeQRCode(os.Stdout, msg); err != nil {
+		t.Fatal(err)
 	}
 }
 
