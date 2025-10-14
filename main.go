@@ -133,9 +133,7 @@ func parse(input string) map[string]string {
 	lines := strings.Split(string(input), "\n")
 	pairs := map[string]string{}
 	for _, line := range lines {
-		parts := strings.SplitN(line, "=", 2)
-		if len(parts) >= 2 {
-			key, value := parts[0], parts[1]
+		if key, value, ok := strings.Cut(line, "="); ok {
 			_, exists := pairs[key]
 			if strings.HasSuffix(key, "[]") && exists {
 				pairs[key] += "\n" + value
