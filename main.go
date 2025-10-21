@@ -46,6 +46,11 @@ var configByHost = map[string]oauth2.Config{
 		ClientSecret: "2b746eea028711749c5062b9fe626fed78d03cc0",
 		Endpoint:     endpoints.GitHub,
 		Scopes:       []string{"repo", "gist", "workflow"}},
+	"gist.github.com": {
+		ClientID: "b895675a4e2cf54d5c6c",
+		ClientSecret: "2b746eea028711749c5062b9fe626fed78d03cc0",
+		Endpoint:     endpoints.GitHub,
+		Scopes:       []string{"repo", "gist", "workflow"}},
 	// https://gitlab.com/oauth/applications/232663
 	"gitlab.com": {
 		ClientID: "10bfbbf46e5b760b55ce772a262d7a0205eacc417816eb84d37d0fb02c89bb97",
