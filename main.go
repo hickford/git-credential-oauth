@@ -476,6 +476,7 @@ func getToken(ctx context.Context, c oauth2.Config, authURLSuffix string) (*oaut
 	cmd := exec.Command(open, p...)
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
+	cmd.Stderr = os.Stderr
 
 	if _, err := exec.LookPath(open); err == nil {
 		if err := cmd.Start(); err != nil {
