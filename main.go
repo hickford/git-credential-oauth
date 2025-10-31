@@ -470,15 +470,27 @@ func getToken(ctx context.Context, c oauth2.Config, authURLSuffix string) (*oaut
 		open = "xdg-open"
 	}
 	p = append(p, authCodeURL)
+
 	// TODO: wait for server to start before opening browser
+
+	cmd := exec.Command(open, p...)
+	cmd.Stdout = os.Stdout
+	cmd.Stdin = os.Stdin
+
 	if _, err := exec.LookPath(open); err == nil {
-		err = exec.Command(open, p...).Run()
-		if err != nil {
+		if err := cmd.Start(); err != nil {
 			fmt.Fprintf(os.Stderr, "Unable to open browser using '%s': %s\n", open, err)
 		}
 	}
+
 	query := <-queries
+
+	if err := cmd.Wait(); err != nil {
+		fmt.Fprintf(os.Stderr, "Browser '%s' terminates with failure: %s\n", open, err)
+	}
+
 	server.Close()
+
 	if verbose {
 		fmt.Fprintln(os.Stderr, "query:", query)
 	}
