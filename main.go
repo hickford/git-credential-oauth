@@ -460,23 +460,45 @@ func getToken(ctx context.Context, c oauth2.Config, authURLSuffix string) (*oaut
 	fmt.Fprintf(os.Stderr, "Please complete authentication in your browser...\n%s\n", authCodeURL)
 	var open string
 	var p []string
+	var tty_filename string
 	switch runtime.GOOS {
 	case "windows":
 		open = "rundll32"
 		p = append(p, "url.dll,FileProtocolHandler")
+		tty_filename = ""
 	case "darwin":
 		open = "open"
+		tty_filename = ""
 	default:
 		open = "xdg-open"
+		tty_filename = "/dev/tty"
 	}
 	p = append(p, authCodeURL)
 
 	// TODO: wait for server to start before opening browser
 
+	/* ***********************************************************
+	 * Begin browser execution
+	 */
+	var tty_stream *os.File = nil
+
 	cmd := exec.Command(open, p...)
-	cmd.Stdout = os.Stdout
-	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
+	if tty_filename != "" {
+		var err error
+		tty_stream, err = os.OpenFile(tty_filename, os.O_RDWR, 0644);
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Unable to open tty for read-write: %s\n", err)
+		}
+
+		// TTY is required for console browsers, like `lynx`
+		cmd.Stdout = tty_stream
+		cmd.Stdin = tty_stream
+	} else {
+		// Browser can neither print to console nor get input from console
+		cmd.Stdout = os.Stdout
+		cmd.Stdin = os.Stdin
+	}
 
 	if _, err := exec.LookPath(open); err == nil {
 		if err := cmd.Start(); err != nil {
@@ -484,11 +506,21 @@ func getToken(ctx context.Context, c oauth2.Config, authURLSuffix string) (*oaut
 		}
 	}
 
+	// Wait here until HTTP server handler is executed
 	query := <-queries
 
+	// Wait here until browser is terminated
 	if err := cmd.Wait(); err != nil {
 		fmt.Fprintf(os.Stderr, "Browser '%s' terminates with failure: %s\n", open, err)
 	}
+
+	if tty_stream != nil {
+		tty_stream.Close()
+	}
+
+	/*
+	 * End browser execution
+	 * ******************************************************** */
 
 	server.Close()
 
