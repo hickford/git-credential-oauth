@@ -14,6 +14,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"flag"
 	"fmt"
@@ -31,6 +32,7 @@ import (
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/endpoints"
+	"rsc.io/qr"
 )
 
 // configByHost lists default config for several public hosts.
@@ -492,13 +494,52 @@ func getToken(ctx context.Context, c oauth2.Config, authURLSuffix string) (*oaut
 func getDeviceToken(ctx context.Context, c oauth2.Config) (*oauth2.Token, error) {
 	deviceAuth, err := c.DeviceAuth(ctx)
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 	if verbose {
 		fmt.Fprintf(os.Stderr, "%+v\n", deviceAuth)
 	}
-	fmt.Fprintf(os.Stderr, "Please enter code %s at %s\n", deviceAuth.UserCode, deviceAuth.VerificationURI)
+	if deviceAuth.VerificationURIComplete != "" {
+		fmt.Fprintf(os.Stderr, "Please scan the QR code or enter code %s at %s\n", deviceAuth.UserCode, deviceAuth.VerificationURI)
+		fmt.Fprintln(os.Stderr)
+		writeQRCode(os.Stderr, deviceAuth.VerificationURIComplete)
+	} else {
+		fmt.Fprintf(os.Stderr, "Please enter code %s at %s\n", deviceAuth.UserCode, deviceAuth.VerificationURI)
+	}
 	return c.DeviceAccessToken(ctx, deviceAuth)
+}
+
+func writeQRCode(w io.Writer, data string) error {
+	// use low redundancy to generate small QR codes for terminal output.
+	// we assume the user is sitting in front of their screen so image quality shouldn't be an issue
+	code, err := qr.Encode(data, qr.L)
+	if err != nil {
+		return err
+	}
+
+	var (
+		black     = "\033[40m  \033[0m"
+		white     = "\033[107m  \033[0m"
+		whiteLine = strings.Repeat(white, code.Size+2) + "\n"
+		buf       bytes.Buffer
+	)
+	buf.WriteString(whiteLine)
+	for y := range code.Size {
+		buf.WriteString(white)
+		for x := range code.Size {
+			if code.Black(x, y) {
+				buf.WriteString(black)
+			} else {
+				buf.WriteString(white)
+			}
+		}
+		buf.WriteString(white)
+		buf.WriteRune('\n')
+	}
+	buf.WriteString(whiteLine)
+
+	_, err = buf.WriteTo(w)
+	return err
 }
 
 func replaceHost(e oauth2.Endpoint, host string) oauth2.Endpoint {
