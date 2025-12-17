@@ -7,7 +7,7 @@ import (
 
 func TestConfig(t *testing.T) {
 	for key, c := range configByHost {
-		if key == "android.googlesource.com" {
+		if key == "android.googlesource.com" || key == "gist.github.com" {
 			continue
 		}
 		if !strings.Contains(c.Endpoint.AuthURL, key) {
