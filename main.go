@@ -116,6 +116,13 @@ var configByHost = map[string]oauth2.Config{
 		ClientSecret: "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",
 		Endpoint:     endpoints.Google,
 		Scopes:       []string{"https://www.googleapis.com/auth/gerritcodereview"}},
+	"gitee.com": {
+		ClientID:     "b5da229f85d94f5d728c43e429c69527fe2dcc387d4ffcb677b91c93983adaa3",
+		ClientSecret: "a9f88c722f66e54184204efa0f49b960f2666947e0b14bd0d73a8c9c1c33c340",
+		Scopes:       []string{"projects", "gists"},
+		Endpoint:     oauth2.Endpoint{AuthURL: "https://gitee.com/oauth/authorize", TokenURL: "https://gitee.com/oauth/token"},
+		// server confused by random ports
+		RedirectURL: "http://127.0.0.1:53119"},
 }
 
 var (
