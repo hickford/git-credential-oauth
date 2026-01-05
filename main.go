@@ -380,9 +380,15 @@ func main() {
 				// six hours
 				storage = "cache --timeout 21600"
 			}
+			oauth_path := "oauth"
+			_, called_by_git := os.LookupEnv("GIT_EXEC_PATH")
+			exec_path, err := os.Executable()
+			if !called_by_git && err == nil && !strings.HasPrefix(exec_path, "/tmp") {
+				oauth_path = exec_path
+			}
 			commands = []*exec.Cmd{exec.Command(gitPath, "config", "--global", "--unset-all", "credential.helper"),
 				exec.Command(gitPath, "config", "--global", "--add", "credential.helper", storage),
-				exec.Command(gitPath, "config", "--global", "--add", "credential.helper", "oauth")}
+				exec.Command(gitPath, "config", "--global", "--add", "credential.helper", oauth_path)}
 		} else if args[0] == "unconfigure" {
 			commands = []*exec.Cmd{exec.Command(gitPath, "config", "--global", "--unset-all", "credential.helper", "oauth")}
 		}
