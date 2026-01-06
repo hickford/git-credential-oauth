@@ -380,11 +380,17 @@ func main() {
 				// six hours
 				storage = "cache --timeout 21600"
 			}
+			helper := "oauth"
+			if device {
+				helper += " -device"
+			}
 			commands = []*exec.Cmd{exec.Command(gitPath, "config", "--global", "--unset-all", "credential.helper"),
 				exec.Command(gitPath, "config", "--global", "--add", "credential.helper", storage),
-				exec.Command(gitPath, "config", "--global", "--add", "credential.helper", "oauth")}
+				exec.Command(gitPath, "config", "--global", "--add", "credential.helper", helper),
+			}
 		} else if args[0] == "unconfigure" {
-			commands = []*exec.Cmd{exec.Command(gitPath, "config", "--global", "--unset-all", "credential.helper", "oauth")}
+			commands = []*exec.Cmd{
+				exec.Command(gitPath, "config", "--global", "--unset-all", "credential.helper", "oauth*")}
 		}
 		for _, cmd := range commands {
 			cmd.Stderr = os.Stderr
