@@ -49,7 +49,7 @@ var configByHost = map[string]oauth2.Config{
 		Endpoint:     endpoints.GitHub,
 		Scopes:       []string{"repo", "gist", "workflow"}},
 	"gist.github.com": {
-		ClientID: "b895675a4e2cf54d5c6c",
+		ClientID:     "b895675a4e2cf54d5c6c",
 		ClientSecret: "2b746eea028711749c5062b9fe626fed78d03cc0",
 		Endpoint:     endpoints.GitHub,
 		Scopes:       []string{"repo", "gist", "workflow"}},
