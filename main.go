@@ -138,11 +138,11 @@ func printVersion(w io.Writer) {
 
 func parse(input string) map[string]string {
 	lines := strings.Split(string(input), "\n")
-	pairs := map[string]string{}
+	pairs := make(map[string]string, len(lines))
 	for _, line := range lines {
 		if key, value, ok := strings.Cut(line, "="); ok {
 			_, exists := pairs[key]
-			if strings.HasSuffix(key, "[]") && exists {
+			if exists && strings.HasSuffix(key, "[]") {
 				pairs[key] += "\n" + value
 			} else {
 				pairs[key] = value
@@ -333,7 +333,7 @@ func main() {
 		}
 		// "A capability[] directive must precede any value depending on it and these directives should be the first item announced in the protocol." https://git-scm.com/docs/git-credential
 		fmt.Println("capability[]=authtype")
-		output := map[string]string{}
+		output := make(map[string]string, 5)
 		hostSupportsBearer := host == "bitbucket.org" || host == "codeberg.org" || host == "gitea.com" || looksLikeGitea || strings.HasSuffix(host, ".googlesource.com")
 		authtypeCapable := strings.Contains(pairs["capability[]"], "authtype")
 		if bearer && hostSupportsBearer && authtypeCapable {
@@ -414,7 +414,7 @@ func main() {
 	}
 }
 
-var template string = `<!DOCTYPE html>
+const template string = `<!DOCTYPE html>
 <html lang="en">
 <head>
 	<title>Git authentication</title>
