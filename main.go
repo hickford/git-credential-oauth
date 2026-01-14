@@ -203,7 +203,7 @@ func main() {
 		}
 		host := pairs["host"]
 		looksLikeGitLab := strings.HasPrefix(host, "gitlab.") || strings.Contains(pairs["wwwauth[]"], `realm="GitLab"`)
-		looksLikeGitea := strings.Contains(pairs["wwwauth[]"], `realm="Gitea"`)
+		looksLikeGitea := strings.HasPrefix(host, "gitea.") || strings.Contains(pairs["wwwauth[]"], `realm="Gitea"`)
 		looksLikeGitHub := strings.HasPrefix(host, "github.") || strings.Contains(pairs["wwwauth[]"], `realm="GitHub"`)
 		urll := fmt.Sprintf("%s://%s", pairs["protocol"], host)
 		c, found := configByHost[host]
