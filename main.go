@@ -204,6 +204,7 @@ func main() {
 		host := pairs["host"]
 		looksLikeGitLab := strings.HasPrefix(host, "gitlab.") || strings.Contains(pairs["wwwauth[]"], `realm="GitLab"`)
 		looksLikeGitea := strings.HasPrefix(host, "gitea.") || strings.Contains(pairs["wwwauth[]"], `realm="Gitea"`)
+		looksLikeForgejo := strings.HasPrefix(host, "forgejo.") || strings.Contains(pairs["wwwauth[]"], `realm="Forgejo"`)
 		looksLikeGitHub := strings.HasPrefix(host, "github.") || strings.Contains(pairs["wwwauth[]"], `realm="GitHub"`)
 		urll := fmt.Sprintf("%s://%s", pairs["protocol"], host)
 		c, found := configByHost[host]
@@ -223,7 +224,7 @@ func main() {
 			}
 			c.Scopes = configByHost["gitlab.com"].Scopes
 		}
-		if !found && looksLikeGitea {
+		if !found && (looksLikeGitea || looksLikeForgejo) {
 			c.ClientID = "a4792ccc-144e-407e-86c9-5e7d8d9c3269"
 			c.Endpoint = oauth2.Endpoint{
 				AuthURL:  fmt.Sprintf("%s/login/oauth/authorize", urll),
