@@ -280,6 +280,25 @@ func main() {
 			if err == nil {
 				c.RedirectURL = strings.TrimSpace(string(bytes))
 			}
+			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "http.proxy", urll).Output()
+			if err == nil {
+				proxyStr := strings.TrimSpace(string(bytes))
+				if !(strings.HasPrefix(proxyStr, "http://") || strings.HasPrefix(proxyStr, "https://")) {
+					proxyStr = "http://" + proxyStr
+				}
+				if verbose {
+					fmt.Fprintln(os.Stderr, "proxy:", proxyStr)
+				}
+				proxy, err := url.Parse(proxyStr)
+				if err == nil {
+					httpClient := &http.Client{
+						Transport: &http.Transport{
+							Proxy: http.ProxyURL(proxy),
+						},
+					}
+					ctx = context.WithValue(ctx, oauth2.HTTPClient, httpClient)
+				}
+			}
 		}
 		if c.ClientID == "" || c.Endpoint.AuthURL == "" || c.Endpoint.TokenURL == "" {
 			if looksLikeGitLab {
