@@ -422,8 +422,12 @@ const template string = `<!DOCTYPE html>
 	<meta name="color-scheme" content="light dark" />
 </head>
 <body>
-<p>Success. You may close this page and return to Git.</p>
+<p>Success. You may close this page and return to Git. It will close automatically in 5 seconds.</p>
 <p style="font-style: italic">&mdash;<a href="https://github.com/hickford/git-credential-oauth">git-credential-oauth</a> %s</p>
+<script>
+	var timeout = 6;
+	setTimeout(function() { this.close(); }, timeout*1000);
+</script>
 </body>
 </html>`
 
