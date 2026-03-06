@@ -28,6 +28,7 @@ import (
 	"os/exec"
 	"runtime"
 	"runtime/debug"
+	"strconv"
 	"strings"
 
 	"golang.org/x/oauth2"
@@ -190,6 +191,7 @@ func main() {
 	}
 	switch args[0] {
 	case "get":
+		var useBearer = false
 		if verbose {
 			printVersion(os.Stderr)
 		}
@@ -280,6 +282,13 @@ func main() {
 			if err == nil {
 				c.RedirectURL = strings.TrimSpace(string(bytes))
 			}
+			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.useBearer", urll).Output()
+			if err == nil {
+				useBearer, err = strconv.ParseBool(strings.TrimSpace(string(bytes)))
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Failed to parse 'credential.useBearer' as boolean, ignoring")
+				}
+			}
 		}
 		if c.ClientID == "" || c.Endpoint.AuthURL == "" || c.Endpoint.TokenURL == "" {
 			if looksLikeGitLab {
@@ -335,7 +344,7 @@ func main() {
 		// "A capability[] directive must precede any value depending on it and these directives should be the first item announced in the protocol." https://git-scm.com/docs/git-credential
 		fmt.Println("capability[]=authtype")
 		output := make(map[string]string, 5)
-		hostSupportsBearer := host == "bitbucket.org" || host == "codeberg.org" || host == "gitea.com" || looksLikeGitea || strings.HasSuffix(host, ".googlesource.com")
+		hostSupportsBearer := useBearer || host == "bitbucket.org" || host == "codeberg.org" || host == "gitea.com" || looksLikeGitea || strings.HasSuffix(host, ".googlesource.com")
 		authtypeCapable := strings.Contains(pairs["capability[]"], "authtype")
 		if bearer && hostSupportsBearer && authtypeCapable {
 			output["authtype"] = "Bearer"

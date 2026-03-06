@@ -176,6 +176,8 @@ git config --global credential.https://gitlab.example.com.oauthDeviceAuthURL /oa
 2. Consult the documentation for OAuth scopes and URLs.
 2. Adjust the config commands below with the generated client id, OAuth scopes and relative URLs.
 3. Share the config commands with colleagues so they can skip the registration step.
+4. If using bearer authentication, then the flag `-bearer` must also be set. For example `oauth -bearer`. Without this the credential
+   will be passed to git as a username/password pair and wrapped in basic authentication.
 
 ```sh
 git config --global credential.https://code.example.com.oauthClientId <CLIENTID>
@@ -183,6 +185,7 @@ git config --global credential.https://code.example.com.oauthScopes "read_reposi
 git config --global credential.https://code.example.com.oauthAuthURL /oauth/authorize
 git config --global credential.https://code.example.com.oauthTokenURL /oauth/token
 git config --global credential.https://code.example.com.oauthDeviceAuthURL /oauth/authorize_device
+git config --global credential.https://code.example.com.useBearer "true"
 ```
 
 ## Philosophy
