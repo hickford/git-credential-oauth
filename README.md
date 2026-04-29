@@ -19,10 +19,10 @@ OAuth has multiple advantages over personal access tokens or SSH:
 
 | Advantage                                  | OAuth | Personal access token | SSH |
 |--------------------------------------------|-------|-----------------------|-----|
-| Clone public repo without setup            | ✔     | ✔                     | 🗙   |
-| Authenticate to popular hosts without setup| ✔     | 🗙                     | 🗙   |
-| Server authenticity verified automatically | ✔     | ✔                     | 🗙   |
-| Protections against token theft[^1] | [✔](https://www.ietf.org/archive/id/draft-ietf-oauth-security-topics-22.html#name-refresh-token-protection)     | 🗙                     | *only if key has passphrase*   |
+| Clone public repo without setup            | ✔     | ✔                     | 𝗫   |
+| Authenticate to popular hosts without setup| ✔     | 𝗫                     | 𝗫   |
+| Server authenticity verified automatically | ✔     | ✔                     | 𝗫   |
+| Protections against token theft[^1] | [✔](https://www.ietf.org/archive/id/draft-ietf-oauth-security-topics-22.html#name-refresh-token-protection)     | 𝗫                     | *only if key has passphrase*   |
 
 [^1]: Scenario: an old disk backup is leaked.
 
@@ -31,13 +31,13 @@ OAuth has multiple advantages over personal access tokens or SSH:
 | Host                | Preconfigured | OAuth             | OAuth device flow |
 |---------------------|---------------|-------------------|-------------------|
 | github.com          | ✔             | ✔                 | ✔                 |
-| GitHub Enterprise Server | 🗙        | ✔                 | ✔                 |
+| GitHub Enterprise Server | 𝗫        | ✔                 | ✔                 |
 | gitlab.com          | ✔             | ✔                 | ✔                 |
-| gitlab.example.com  | [🗙](https://gitlab.com/gitlab-org/gitlab/-/issues/374172)            | ✔                 | ✔                 |
-| gitea.example.com   | ✔             | ✔                 | [🗙](https://github.com/go-gitea/gitea/issues/27309)                 |
-| forgejo.example.com | ✔             | ✔                 | [🗙](https://codeberg.org/forgejo/forgejo/issues/4830) |
-| bitbucket.org       | ✔             | ✔                 | 🗙                 |
-| googlesource.com    | ✔             | ✔                 | [🗙](https://github.com/hickford/git-credential-oauth/issues/38) |
+| gitlab.example.com  | [𝗫](https://gitlab.com/gitlab-org/gitlab/-/issues/374172)            | ✔                 | ✔                 |
+| gitea.example.com   | ✔             | ✔                 | [𝗫](https://github.com/go-gitea/gitea/issues/27309)                 |
+| forgejo.example.com | ✔             | ✔                 | [𝗫](https://codeberg.org/forgejo/forgejo/issues/4830) |
+| bitbucket.org       | ✔             | ✔                 | 𝗫                 |
+| googlesource.com    | ✔             | ✔                 | [𝗫](https://github.com/hickford/git-credential-oauth/issues/38) |
 
 OAuth device flow is useful for browserless systems.
 
@@ -198,16 +198,16 @@ git config --global credential.https://code.example.com.oauthDeviceAuthURL /oaut
 |                | Git Credential Manager | git-credential-oauth |
 |----------------|------------------------|----------------------|
 | Cross platform | ✔                      | ✔                     |
-| Linux arm64 support            | 🗙               | ✔                            |
-| Packaged in Linux distributions               | 🗙            | ✔ ([many](https://repology.org/project/git-credential-oauth/versions)) |
+| Linux arm64 support            | 𝗫               | ✔                            |
+| Packaged in Linux distributions               | 𝗫            | ✔ ([many](https://repology.org/project/git-credential-oauth/versions)) |
 | Installation size (Linux) | [82 MB](https://github.com/git-ecosystem/git-credential-manager/issues/1212#issuecomment-1530304873) | 5 MB                 |
 | Installation size (Windows) | 4 MB | 5 MB                 |
-| Ships with Git for Windows | ✔ | 🗙 |
+| Ships with Git for Windows | ✔ | 𝗫 |
 | Credential storage | In built | Used together with any storage helper |
 | Development    | .NET                   | Go                   |
 | Lines of code | 40,000 | 500 |
 | Minimum HTTP requests | 1 | 0 |
-| Authentication to Azure DevOps | ✔ | 🗙 (try [git-credential-azure](https://github.com/hickford/git-credential-azure)) |
+| Authentication to Azure DevOps | ✔ | 𝗫 (try [git-credential-azure](https://github.com/hickford/git-credential-azure)) |
 | Hosts with default config | 4 | 14 |
 
 The maintainer personally uses GCM on Windows and git-credential-oauth on Linux.
