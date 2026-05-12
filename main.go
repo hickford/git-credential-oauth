@@ -448,9 +448,16 @@ func getToken(ctx context.Context, c oauth2.Config, authURLSuffix string) (*oaut
 			log.Fatalln(err)
 		}
 		origHostname := url.Hostname()
+		if port := url.Port(); port != "" && runtime.GOOS == "linux" {
+			if verbose {
+				fmt.Fprintf(os.Stderr, "killing existing server on port %s\n", port)
+			}
+			exec.Command("fuser", "-k", port+"/tcp").Run()
+		}
 		if url.Port() == "" {
 			url.Host += ":0"
 		}
+
 		l, err := net.Listen("tcp", url.Host)
 		if err != nil {
 			log.Fatalln(err)
