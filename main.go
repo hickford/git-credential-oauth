@@ -245,40 +245,65 @@ func main() {
 			cmd := exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthClientId", urll)
 			bytes, err := cmd.Output()
 			if err == nil {
-				c.ClientID = strings.TrimSpace(string(bytes))
+				c.ClientID, err = evalConfigValue(string(bytes))
+				if err != nil {
+					log.Fatalln(err)
+				}
 			}
 			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthClientSecret", urll).Output()
 			if err == nil {
-				c.ClientSecret = strings.TrimSpace(string(bytes))
+				c.ClientSecret, err = evalConfigValue(string(bytes))
+				if err != nil {
+					log.Fatalln(err)
+				}
 			}
 			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthScopes", urll).Output()
 			if err == nil {
-				c.Scopes = []string{strings.TrimSpace(string(bytes))}
+				scope, err := evalConfigValue(string(bytes))
+				if err != nil {
+					log.Fatalln(err)
+				}
+				c.Scopes = []string{scope}
 			}
 			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthAuthURL", urll).Output()
 			if err == nil {
-				c.Endpoint.AuthURL, err = urlResolveReference(urll, strings.TrimSpace(string(bytes)))
+				value, err := evalConfigValue(string(bytes))
+				if err != nil {
+					log.Fatalln(err)
+				}
+				c.Endpoint.AuthURL, err = urlResolveReference(urll, value)
 				if err != nil {
 					log.Fatalln(err)
 				}
 			}
 			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthTokenURL", urll).Output()
 			if err == nil {
-				c.Endpoint.TokenURL, err = urlResolveReference(urll, strings.TrimSpace(string(bytes)))
+				value, err := evalConfigValue(string(bytes))
+				if err != nil {
+					log.Fatalln(err)
+				}
+				c.Endpoint.TokenURL, err = urlResolveReference(urll, value)
 				if err != nil {
 					log.Fatalln(err)
 				}
 			}
 			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthDeviceAuthURL", urll).Output()
 			if err == nil {
-				c.Endpoint.DeviceAuthURL, err = urlResolveReference(urll, strings.TrimSpace(string(bytes)))
+				value, err := evalConfigValue(string(bytes))
+				if err != nil {
+					log.Fatalln(err)
+				}
+				c.Endpoint.DeviceAuthURL, err = urlResolveReference(urll, value)
 				if err != nil {
 					log.Fatalln(err)
 				}
 			}
 			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthRedirectURL", urll).Output()
 			if err == nil {
-				c.RedirectURL = strings.TrimSpace(string(bytes))
+				c.RedirectURL, err = evalConfigValue(string(bytes))
+				if err != nil {
+					log.Fatalln(err)
+				}
 			}
 		}
 		if c.ClientID == "" || c.Endpoint.AuthURL == "" || c.Endpoint.TokenURL == "" {
@@ -571,6 +596,51 @@ func replaceHostInURL(originalURL, host string) string {
 	}
 	u.Host = host
 	return u.String()
+}
+
+// if the value is wrapped in backticks, the inner string is executed via the user's shell and its trimmed STDOUT is
+// returned instead. Lets a git config value source secrets from a password manager via a pipeline (e.g. `pass show foo
+// | head -1`).
+func evalConfigValue(raw string) (string, error) {
+	v := strings.TrimSpace(raw)
+	if len(v) < 2 || !strings.HasPrefix(v, "`") || !strings.HasSuffix(v, "`") {
+		return v, nil
+	}
+	script := v[1 : len(v)-1]
+	if verbose {
+		fmt.Fprintf(os.Stderr, "evaluating config command: %s\n", script)
+	}
+	out, err := runInShell(script)
+	if err != nil {
+		return "", fmt.Errorf("evaluating config command %q: %w", script, err)
+	}
+	return out, nil
+}
+
+// executes script through the user's default shell and returns trimmed STDOUT.
+// On Unix it uses $SHELL (fallback /bin/sh)
+// On Windows it uses %COMSPEC% (fallback cmd.exe).
+func runInShell(script string) (string, error) {
+	var cmd *exec.Cmd
+	if runtime.GOOS == "windows" {
+		shell := os.Getenv("COMSPEC")
+		if shell == "" {
+			shell = "cmd.exe"
+		}
+		cmd = exec.Command(shell, "/C", script)
+	} else {
+		shell := os.Getenv("SHELL")
+		if shell == "" {
+			shell = "/bin/sh"
+		}
+		cmd = exec.Command(shell, "-c", script)
+	}
+	cmd.Stderr = os.Stderr
+	out, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(out)), nil
 }
 
 func urlResolveReference(base, ref string) (string, error) {

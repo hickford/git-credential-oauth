@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -30,6 +31,76 @@ func TestQR(t *testing.T) {
 	}
 	if err := writeQRCode(os.Stdout, msg); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestEvalConfigValuePlain(t *testing.T) {
+	tests := map[string]string{
+		"":                "",
+		"   ":             "",
+		"plain":           "plain",
+		"  padded  ":      "padded",
+		"has `backtick` in middle":     "has `backtick` in middle",
+		"`only-open":                   "`only-open",
+		"only-close`":                  "only-close`",
+		"`":                            "`",
+	}
+	for input, want := range tests {
+		got, err := evalConfigValue(input)
+		if err != nil {
+			t.Errorf("evalConfigValue(%q) error: %v", input, err)
+			continue
+		}
+		if got != want {
+			t.Errorf("evalConfigValue(%q) = %q, want %q", input, got, want)
+		}
+	}
+}
+
+func TestEvalConfigValueShell(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("POSIX shell syntax; skipping on Windows")
+	}
+	tests := map[string]string{
+		"`echo hello`":                    "hello",
+		"  `echo hello`  ":                "hello",
+		"`printf 'secret\\n' | head -1`":  "secret",
+		"`echo one; echo two`":            "one\ntwo",
+		"``":                              "",
+	}
+	for input, want := range tests {
+		got, err := evalConfigValue(input)
+		if err != nil {
+			t.Errorf("evalConfigValue(%q) error: %v", input, err)
+			continue
+		}
+		if got != want {
+			t.Errorf("evalConfigValue(%q) = %q, want %q", input, got, want)
+		}
+	}
+}
+
+func TestEvalConfigValueShellError(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("POSIX shell syntax; skipping on Windows")
+	}
+	_, err := evalConfigValue("`exit 3`")
+	if err == nil {
+		t.Fatal("expected error from failing shell command, got nil")
+	}
+}
+
+func TestEvalConfigValueRespectsSHELL(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("POSIX shell syntax; skipping on Windows")
+	}
+	t.Setenv("SHELL", "/bin/sh")
+	got, err := evalConfigValue("`echo via-sh`")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got != "via-sh" {
+		t.Errorf("got %q, want %q", got, "via-sh")
 	}
 }
 

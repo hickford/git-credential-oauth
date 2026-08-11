@@ -185,6 +185,23 @@ git config --global credential.https://code.example.com.oauthTokenURL /oauth/tok
 git config --global credential.https://code.example.com.oauthDeviceAuthURL /oauth/authorize_device
 ```
 
+### Dynamic values from a shell command
+
+Any `oauth*` config value may be wrapped in backticks to have its content executed as a shell command; the trimmed
+STDOUT is used as the effective value. This lets you source secrets from a password manager (or any other tool) instead
+of committing them to `~/.gitconfig` in plaintext.
+
+```ini
+[credential "https://some-site.com"]
+	helper            = oauth
+	oauthClientId     = `pass show secret/some-site.com/oauth-client-secret | jq -r .id`
+	oauthClientSecret = `pass show secret/some-site.com/oauth-client-secret | jq -r .secret`
+```
+
+Commands run via `$SHELL` (fallback `/bin/sh`) on Unix and `%COMSPEC%` (fallback `cmd.exe`) on Windows, so pipes and
+other shell features are supported. Only the `oauth*` keys read by this helper are evaluated; other Git config values
+are untouched.
+
 ## Philosophy
 
 * Do one thing well, namely OAuth authentication.
