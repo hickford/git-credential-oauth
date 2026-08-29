@@ -486,9 +486,25 @@ func getToken(ctx context.Context, c oauth2.Config, authURLSuffix string) (*oaut
 	p = append(p, authCodeURL)
 	// TODO: wait for server to start before opening browser
 	if _, err := exec.LookPath(open); err == nil {
-		err = exec.Command(open, p...).Run()
-		if err != nil {
+		cmd := exec.Command(open, p...)
+		// Let the opener (e.g. a headless xdg-open wrapper) receive stdin and
+		// show stdout. When git invokes us, our own stdin is an already
+		// drained pipe and our stdout is the credential protocol channel,
+		// so prefer the controlling terminal when one exists; without a tty,
+		// route the child's stdout to stderr so it can't break the protocol.
+		cmd.Stderr = os.Stderr
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stderr
+		if tty, err := os.OpenFile("/dev/tty", os.O_RDWR, 0); err == nil {
+			cmd.Stdin = tty
+			cmd.Stdout = tty
+			cmd.Stderr = tty
+			defer tty.Close()
+		}
+		if err := cmd.Start(); err != nil {
 			fmt.Fprintf(os.Stderr, "Unable to open browser using '%s': %s\n", open, err)
+		} else {
+			go cmd.Wait() // reap the child
 		}
 	}
 	query := <-queries
