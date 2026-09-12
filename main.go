@@ -29,6 +29,7 @@ import (
 	"runtime"
 	"runtime/debug"
 	"strings"
+	"sync"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/endpoints"
@@ -429,13 +430,25 @@ const template string = `<!DOCTYPE html>
 
 func getToken(ctx context.Context, c oauth2.Config, authURLSuffix string) (*oauth2.Token, error) {
 	state := oauth2.GenerateVerifier()
-	queries := make(chan url.Values)
+	// Buffered so a send from forwardQuery never blocks, and guarded by forwardOnce so
+	// only the first matching request is forwarded. Without this, browsers routinely
+	// fire extra requests at the callback origin (e.g. a GET /favicon.ico alongside the
+	// real redirect) which are handled concurrently; since every request was previously
+	// sent on an unbuffered channel read exactly once, whichever request lost that race
+	// blocked forever with no HTTP response ever written, which looks like the browser
+	// hanging indefinitely on 127.0.0.1.
+	queries := make(chan url.Values, 1)
+	var forwardOnce sync.Once
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// TODO: consider whether to show errors in browser or command line
-		queries <- r.URL.Query()
 		w.Header().Add("Content-Type", "text/html")
 		html := fmt.Sprintf(template, getVersion())
 		w.Write([]byte(html))
+		if r.URL.Query().Get("state") == state {
+			forwardOnce.Do(func() {
+				queries <- r.URL.Query()
+			})
+		}
 	})
 	var server *httptest.Server
 	if c.RedirectURL == "" {
