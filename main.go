@@ -306,24 +306,24 @@ func main() {
 			}
 		}
 
-		var authURLSuffix string
+		var authCodeOptions []oauth2.AuthCodeOption
 		if pairs["username"] != "" && pairs["username"] != "oauth2" {
 			if looksLikeGitHub {
 				// https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#1-request-a-users-github-identity
-				authURLSuffix = fmt.Sprintf("&login=%s", pairs["username"])
+				authCodeOptions = append(authCodeOptions, oauth2.SetAuthURLParam("login", pairs["username"]))
 			}
 			if strings.HasSuffix(host, ".googlesource.com") {
 				// https://developers.google.com/identity/protocols/oauth2/web-server#creatingclient
-				authURLSuffix = fmt.Sprintf("&login_hint=%s", pairs["username"])
+				authCodeOptions = append(authCodeOptions, oauth2.SetAuthURLParam("login_hint", pairs["username"]))
 			}
 		}
 
 		if token == nil {
 			// Generate new token (opens browser, may require user input)
 			if device {
-				token, err = getDeviceToken(ctx, c)
+				token, err = getDeviceToken(ctx, c, authCodeOptions...)
 			} else {
-				token, err = getToken(ctx, c, authURLSuffix)
+				token, err = getToken(ctx, c, authCodeOptions...)
 			}
 			if err != nil {
 				log.Fatalln(err)
@@ -427,7 +427,7 @@ const template string = `<!DOCTYPE html>
 </body>
 </html>`
 
-func getToken(ctx context.Context, c oauth2.Config, authURLSuffix string) (*oauth2.Token, error) {
+func getToken(ctx context.Context, c oauth2.Config, authCodeOptions ...oauth2.AuthCodeOption) (*oauth2.Token, error) {
 	state := oauth2.GenerateVerifier()
 	queries := make(chan url.Values)
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -469,8 +469,8 @@ func getToken(ctx context.Context, c oauth2.Config, authURLSuffix string) (*oaut
 	}
 	defer server.Close()
 	verifier := oauth2.GenerateVerifier()
-	authCodeURL := c.AuthCodeURL(state, oauth2.S256ChallengeOption(verifier))
-	authCodeURL += authURLSuffix
+	options := append([]oauth2.AuthCodeOption{oauth2.S256ChallengeOption(verifier)}, authCodeOptions...)
+	authCodeURL := c.AuthCodeURL(state, options...)
 	fmt.Fprintf(os.Stderr, "Please complete authentication in your browser...\n%s\n", authCodeURL)
 	var open string
 	var p []string
@@ -503,8 +503,8 @@ func getToken(ctx context.Context, c oauth2.Config, authURLSuffix string) (*oaut
 	return c.Exchange(ctx, code, oauth2.VerifierOption(verifier))
 }
 
-func getDeviceToken(ctx context.Context, c oauth2.Config) (*oauth2.Token, error) {
-	deviceAuth, err := c.DeviceAuth(ctx)
+func getDeviceToken(ctx context.Context, c oauth2.Config, authCodeOptions ...oauth2.AuthCodeOption) (*oauth2.Token, error) {
+	deviceAuth, err := c.DeviceAuth(ctx, authCodeOptions...)
 	if err != nil {
 		return nil, err
 	}
