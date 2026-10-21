@@ -160,11 +160,12 @@ To use with a custom host, eg. `gitlab.example.com`:
 3. Share the config command with colleagues so they can skip the registration step.
 
 ```sh
-git config --global credential.https://gitlab.example.com.oauthClientId <CLIENTID>
+git config --global credential.https://gitlab.example.com.oauthClientId <CLIENT_ID>
 git config --global credential.https://gitlab.example.com.oauthScopes "read_repository write_repository"
 git config --global credential.https://gitlab.example.com.oauthAuthURL /oauth/authorize
 git config --global credential.https://gitlab.example.com.oauthTokenURL /oauth/token
 git config --global credential.https://gitlab.example.com.oauthDeviceAuthURL /oauth/authorize_device
+git config --global credential.https://gitlab.example.com.oauthRootNamespaceId <ROOT_NAMESPACE_ID>  # if you use SAML SSO (optional)
 ```
 
 ### Other
@@ -178,7 +179,7 @@ git config --global credential.https://gitlab.example.com.oauthDeviceAuthURL /oa
 3. Share the config commands with colleagues so they can skip the registration step.
 
 ```sh
-git config --global credential.https://code.example.com.oauthClientId <CLIENTID>
+git config --global credential.https://code.example.com.oauthClientId <CLIENT_ID>
 git config --global credential.https://code.example.com.oauthScopes "read_repository write_repository"
 git config --global credential.https://code.example.com.oauthAuthURL /oauth/authorize
 git config --global credential.https://code.example.com.oauthTokenURL /oauth/token

@@ -241,11 +241,16 @@ func main() {
 			c.Scopes = configByHost["github.com"].Scopes
 		}
 		gitPath, err := exec.LookPath("git")
+		var rootNamespaceID string
 		if err == nil {
 			cmd := exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthClientId", urll)
 			bytes, err := cmd.Output()
 			if err == nil {
 				c.ClientID = strings.TrimSpace(string(bytes))
+			}
+			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthRootNamespaceId", urll).Output()
+			if err == nil {
+				rootNamespaceID = strings.TrimSpace(string(bytes))
 			}
 			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthClientSecret", urll).Output()
 			if err == nil {
@@ -305,8 +310,10 @@ func main() {
 				fmt.Fprintln(os.Stderr, "error during OAuth token refresh", err)
 			}
 		}
-
 		var authCodeOptions []oauth2.AuthCodeOption
+		if rootNamespaceID != "" {
+			authCodeOptions = append(authCodeOptions, oauth2.SetAuthURLParam("root_namespace_id", rootNamespaceID))
+		}
 		if pairs["username"] != "" && pairs["username"] != "oauth2" {
 			if looksLikeGitHub {
 				// https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#1-request-a-users-github-identity
