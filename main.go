@@ -242,6 +242,7 @@ func main() {
 		}
 		gitPath, err := exec.LookPath("git")
 		var rootNamespaceID string
+		var browser string
 		if err == nil {
 			cmd := exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthClientId", urll)
 			bytes, err := cmd.Output()
@@ -280,6 +281,10 @@ func main() {
 				if err != nil {
 					log.Fatalln(err)
 				}
+			}
+			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthBrowser", urll).Output()
+			if err == nil {
+				browser = strings.TrimSpace(string(bytes))
 			}
 			bytes, err = exec.Command(gitPath, "config", "--get-urlmatch", "credential.oauthRedirectURL", urll).Output()
 			if err == nil {
@@ -330,7 +335,7 @@ func main() {
 			if device {
 				token, err = getDeviceToken(ctx, c, authCodeOptions...)
 			} else {
-				token, err = getToken(ctx, c, authCodeOptions...)
+				token, err = getToken(ctx, c, browser, authCodeOptions...)
 			}
 			if err != nil {
 				log.Fatalln(err)
@@ -434,7 +439,7 @@ const template string = `<!DOCTYPE html>
 </body>
 </html>`
 
-func getToken(ctx context.Context, c oauth2.Config, authCodeOptions ...oauth2.AuthCodeOption) (*oauth2.Token, error) {
+func getToken(ctx context.Context, c oauth2.Config, browser string, authCodeOptions ...oauth2.AuthCodeOption) (*oauth2.Token, error) {
 	state := oauth2.GenerateVerifier()
 	queries := make(chan url.Values)
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -481,14 +486,18 @@ func getToken(ctx context.Context, c oauth2.Config, authCodeOptions ...oauth2.Au
 	fmt.Fprintf(os.Stderr, "Please complete authentication in your browser...\n%s\n", authCodeURL)
 	var open string
 	var p []string
-	switch runtime.GOOS {
-	case "windows":
-		open = "rundll32"
-		p = append(p, "url.dll,FileProtocolHandler")
-	case "darwin":
-		open = "open"
-	default:
-		open = "xdg-open"
+	if browser != "" {
+		open = browser
+	} else {
+		switch runtime.GOOS {
+		case "windows":
+			open = "rundll32"
+			p = append(p, "url.dll,FileProtocolHandler")
+		case "darwin":
+			open = "open"
+		default:
+			open = "xdg-open"
+		}
 	}
 	p = append(p, authCodeURL)
 	// TODO: wait for server to start before opening browser
