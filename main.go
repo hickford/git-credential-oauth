@@ -29,6 +29,7 @@ import (
 	"runtime"
 	"runtime/debug"
 	"strings"
+	"time"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/endpoints"
@@ -365,7 +366,10 @@ func main() {
 			}
 		}
 		if !token.Expiry.IsZero() {
-			output["password_expiry_utc"] = fmt.Sprintf("%d", token.Expiry.UTC().Unix())
+			// Git sends a token until its stated expiry and erases the stored credential, refresh
+			// token included, on a 401. A request racing the server-side expiry would then force
+			// a new browser login, so report expiry early enough that Git refreshes first.
+			output["password_expiry_utc"] = fmt.Sprintf("%d", token.Expiry.Add(-expiryMargin).UTC().Unix())
 		}
 		if token.RefreshToken != "" {
 			output["oauth_refresh_token"] = token.RefreshToken
@@ -439,6 +443,9 @@ const template string = `<!DOCTYPE html>
 </body>
 </html>`
 
+// expiryMargin is how long before the server-side expiry Git is told to stop using an access token.
+const expiryMargin = 5 * time.Minute
+
 func getToken(ctx context.Context, c oauth2.Config, browser string, authCodeOptions ...oauth2.AuthCodeOption) (*oauth2.Token, error) {
 	state := oauth2.GenerateVerifier()
 	queries := make(chan url.Values)
@@ -505,6 +512,11 @@ func getToken(ctx context.Context, c oauth2.Config, browser string, authCodeOpti
 		err = exec.Command(open, p...).Run()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Unable to open browser using '%s': %s\n", open, err)
+			if browser != "" {
+				// An explicitly configured browser that fails (for example "false" on unattended
+				// machines) means nobody will complete the flow, so fail instead of waiting forever.
+				return nil, fmt.Errorf("browser command '%s' failed: %w", open, err)
+			}
 		}
 	}
 	query := <-queries
